@@ -56,6 +56,19 @@ const actionPlans = {
     { text: 'Dokument ausstellen', detail: 'Bestätigung / Nachweis mit aktuellen Vertragsdaten erstellen' },
     { text: 'Adressdaten aktualisieren (falls nötig)', detail: 'Neue Adresse im Vertragssystem hinterlegen' },
     { text: 'Dokument an Kunden senden', detail: 'Per E-Mail oder Post zustellen' }
+  ],
+  yearEnd: [
+    { text: 'Mandantenakte sichten', detail: 'Bestehende Verträge und Versorgungslücken prüfen' },
+    { text: 'Beratungstermin vereinbaren', detail: 'Telefonisch oder per E-Mail Termin abstimmen' },
+    { text: 'Steuerliche Situation besprechen', detail: 'Sonderausgaben-Potenzial und Freibeträge klären' },
+    { text: 'Produktvorschlag erstellen', detail: 'Passendes Angebot mit Berechnung vorbereiten' },
+    { text: 'Antrag aufnehmen', detail: 'Unterschriften und Unterlagen einholen' },
+    { text: 'Nachbereitung & Dokumentation', detail: 'Beratungsprotokoll erstellen und ablegen' }
+  ],
+  birthday: [
+    { text: 'Gratulationsweg wählen', detail: 'E-Mail, WhatsApp, Anruf oder Karte auswählen' },
+    { text: 'Persönliche Nachricht senden', detail: 'Glückwünsche mit persönlicher Note versenden' },
+    { text: 'Beratungsanlass prüfen', detail: 'Runder Geburtstag = guter Anlass für Vertragscheck' }
   ]
 };
 
@@ -64,6 +77,8 @@ const state = {
   requests: [...mockRequests],
   answeredRequests: [],
   selectedRequest: null,
+  selectedClient: null,
+  clientProgress: {}, // tracks action plan progress per client
   currentFilter: 'all',
   currentView: 'requests' // for mobile
 };
@@ -193,11 +208,38 @@ async function selectRequest(requestId) {
   if (!request) return;
 
   state.selectedRequest = request;
+  state.selectedClient = null;
   renderRequestList(); // Update active state
 
+  // Handle special request types
+  if (request.type === 'yearEnd') {
+    renderYearEndView(request);
+    return;
+  }
+
+  if (request.type === 'birthday') {
+    renderBirthdayView(request);
+    return;
+  }
+
+  if (request.type === 'rework') {
+    renderReworkView(request);
+    return;
+  }
+
+  // Standard request view
+  renderStandardRequestView(request);
+}
+
+// Render standard request detail view
+async function renderStandardRequestView(request) {
   const channel = channels[request.channel];
   const category = categories[request.category];
   const priority = category.priority;
+
+  // Remove any existing custom view
+  const existing = elements.requestDetail.querySelector('.custom-list-view');
+  if (existing) existing.remove();
 
   // Hide empty state, show content
   elements.requestDetail.querySelector('.request-detail__empty').style.display = 'none';
@@ -238,6 +280,421 @@ async function selectRequest(requestId) {
   if (window.innerWidth <= 1024) {
     switchMobileView('current');
   }
+}
+
+// ========================================
+// Year-End Business View
+// ========================================
+
+function renderYearEndView(request) {
+  elements.requestDetail.querySelector('.request-detail__empty').style.display = 'none';
+  elements.requestContent.style.display = 'none';
+
+  // Remove any existing custom view
+  const existing = elements.requestDetail.querySelector('.custom-list-view');
+  if (existing) existing.remove();
+
+  const view = document.createElement('div');
+  view.className = 'custom-list-view';
+  view.innerHTML = `
+    <div class="custom-list-view__header">
+      <div class="custom-list-view__title">
+        <span class="custom-list-view__icon">📊</span>
+        <div>
+          <h2>Potenziale Jahresendgeschäft</h2>
+          <p class="custom-list-view__subtitle">Mandanten mit Beratungspotenzial kontaktieren</p>
+        </div>
+      </div>
+      <div class="custom-list-view__stats">
+        <div class="stat-card">
+          <span class="stat-card__value">${request.clients.length}</span>
+          <span class="stat-card__label">Mandanten</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__value">${request.clients.filter(c => c.status === 'erledigt').length}</span>
+          <span class="stat-card__label">Erledigt</span>
+        </div>
+        <div class="stat-card stat-card--highlight">
+          <span class="stat-card__value">${request.clients.filter(c => c.status === 'offen').length}</span>
+          <span class="stat-card__label">Offen</span>
+        </div>
+      </div>
+    </div>
+    <div class="custom-list-view__info">
+      <p>${request.originalMessage}</p>
+    </div>
+    <div class="client-list">
+      <div class="client-list__header">
+        <span>Mandant</span>
+        <span>Thema</span>
+        <span>Potenzial</span>
+        <span>Status</span>
+      </div>
+      ${request.clients.map((client, index) => `
+        <div class="client-list__item ${state.selectedClient?.id === client.id ? 'client-list__item--active' : ''}"
+             data-client-id="${client.id}" data-client-index="${index}">
+          <div class="client-list__name">
+            <span class="client-list__avatar">${client.name.charAt(0)}</span>
+            <div>
+              <strong>${client.name}</strong>
+              <span class="client-list__age">${client.age} Jahre</span>
+            </div>
+          </div>
+          <div class="client-list__topic">${client.topic}</div>
+          <div class="client-list__potential">${client.potential}</div>
+          <div class="client-list__status client-list__status--${client.status}">
+            <span class="status-dot"></span>
+            ${client.status === 'offen' ? 'Offen' : 'Erledigt'}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  elements.requestDetail.appendChild(view);
+
+  // Add click handlers for clients
+  view.querySelectorAll('.client-list__item').forEach(item => {
+    item.addEventListener('click', () => {
+      const clientId = item.dataset.clientId;
+      const client = request.clients.find(c => c.id === clientId);
+      if (client) {
+        selectYearEndClient(client, request);
+      }
+    });
+  });
+
+  // Show general action plan
+  renderActionPlan('yearEnd');
+
+  // Set AI response to guidance message
+  elements.aiResponseText.value = 'Wählen Sie einen Mandanten aus der Liste, um den individuellen Vorgehensplan und Beratungshinweise zu sehen.';
+  elements.aiStatus.textContent = 'Bereit';
+}
+
+function selectYearEndClient(client, request) {
+  state.selectedClient = client;
+
+  // Update active state in list
+  const listItems = elements.requestDetail.querySelectorAll('.client-list__item');
+  listItems.forEach(item => {
+    item.classList.toggle('client-list__item--active', item.dataset.clientId === client.id);
+  });
+
+  // Show personalized action plan
+  renderActionPlan('yearEnd', client);
+
+  // Show AI guidance for this specific client
+  elements.aiResponseText.value = `Beratungshinweise für ${client.name} (${client.age} J.):\n\n` +
+    `Thema: ${client.topic}\n` +
+    `Potenzial: ${client.potential}\n\n` +
+    `Empfohlene Gesprächseröffnung:\n` +
+    `"Guten Tag ${client.name.split(' ')[1] ? 'Herr/Frau ' + client.name.split(' ').pop() : client.name}, ` +
+    `im Rahmen unserer Jahresend-Beratung möchte ich mit Ihnen über ${client.topic.toLowerCase()} sprechen. ` +
+    `Hier gibt es für Sie ein interessantes Potenzial von ${client.potential}."\n\n` +
+    `Kontakt:\n📞 ${client.phone}\n📧 ${client.email}`;
+  elements.aiStatus.textContent = 'KI-Empfehlung';
+}
+
+// ========================================
+// Birthday View
+// ========================================
+
+function renderBirthdayView(request) {
+  elements.requestDetail.querySelector('.request-detail__empty').style.display = 'none';
+  elements.requestContent.style.display = 'none';
+
+  // Remove any existing custom view
+  const existing = elements.requestDetail.querySelector('.custom-list-view');
+  if (existing) existing.remove();
+
+  const view = document.createElement('div');
+  view.className = 'custom-list-view';
+  view.innerHTML = `
+    <div class="custom-list-view__header">
+      <div class="custom-list-view__title">
+        <span class="custom-list-view__icon">🎂</span>
+        <div>
+          <h2>Heutige & kommende Geburtstage</h2>
+          <p class="custom-list-view__subtitle">Mandanten zum Geburtstag gratulieren</p>
+        </div>
+      </div>
+      <div class="custom-list-view__stats">
+        <div class="stat-card stat-card--highlight">
+          <span class="stat-card__value">${request.clients.filter(c => c.daysUntil === 0).length}</span>
+          <span class="stat-card__label">Heute</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__value">${request.clients.filter(c => c.daysUntil > 0).length}</span>
+          <span class="stat-card__label">Kommende Tage</span>
+        </div>
+      </div>
+    </div>
+    <div class="birthday-list">
+      ${request.clients.map(client => `
+        <div class="birthday-card ${state.selectedClient?.id === client.id ? 'birthday-card--active' : ''} ${client.daysUntil === 0 ? 'birthday-card--today' : ''}"
+             data-client-id="${client.id}">
+          <div class="birthday-card__left">
+            <div class="birthday-card__avatar">
+              <span>${client.name.charAt(0)}</span>
+              ${client.daysUntil === 0 ? '<span class="birthday-card__badge">🎉</span>' : ''}
+            </div>
+            <div class="birthday-card__info">
+              <strong>${client.name}</strong>
+              <span class="birthday-card__detail">wird ${client.age} Jahre · Mandant seit ${client.since}</span>
+              <span class="birthday-card__date">
+                ${client.daysUntil === 0 ? '🎂 Heute!' : client.daysUntil === 1 ? '📅 Morgen' : `📅 In ${client.daysUntil} Tagen (${client.birthday})`}
+              </span>
+            </div>
+          </div>
+          <div class="birthday-card__arrow">→</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  elements.requestDetail.appendChild(view);
+
+  // Add click handlers for clients
+  view.querySelectorAll('.birthday-card').forEach(item => {
+    item.addEventListener('click', () => {
+      const clientId = item.dataset.clientId;
+      const client = request.clients.find(c => c.id === clientId);
+      if (client) {
+        selectBirthdayClient(client, request);
+      }
+    });
+  });
+
+  // Show general guidance
+  elements.actionPlanSection.style.display = 'none';
+  elements.aiResponseText.value = 'Wählen Sie einen Mandanten aus, um Gratulationsmöglichkeiten zu sehen.';
+  elements.aiStatus.textContent = 'Bereit';
+}
+
+function selectBirthdayClient(client, request) {
+  state.selectedClient = client;
+
+  // Update active state
+  const cards = elements.requestDetail.querySelectorAll('.birthday-card');
+  cards.forEach(card => {
+    card.classList.toggle('birthday-card--active', card.dataset.clientId === client.id);
+  });
+
+  // Show birthday actions in right sidebar
+  renderBirthdayActions(client);
+}
+
+function renderBirthdayActions(client) {
+  // Use the action plan section for birthday greeting options
+  elements.actionPlanSection.style.display = '';
+
+  const header = elements.actionPlanSection.querySelector('.action-plan__header h3');
+  header.innerHTML = `<span class="action-plan__icon">🎂</span> Gratulieren: ${client.name}`;
+  elements.actionPlanProgress.textContent = '';
+
+  elements.actionPlanList.innerHTML = '';
+
+  const actions = [
+    { icon: '📧', text: 'E-Mail senden', detail: `Geburtstags-E-Mail an ${client.email} senden`, type: 'email' },
+    { icon: '💬', text: 'WhatsApp senden', detail: `Persönliche WhatsApp-Nachricht an ${client.phone}`, type: 'whatsapp' },
+    { icon: '🤖', text: 'KI-Anruf starten', detail: 'KI ruft den Mandanten mit persönlichen Glückwünschen an', type: 'ai-call' },
+    { icon: '📞', text: 'Selbst anrufen', detail: `Mandant anrufen: ${client.phone}`, type: 'phone' },
+    { icon: '💌', text: 'Geburtstagskarte versenden', detail: 'Physische Glückwunschkarte über Druckservice', type: 'card' },
+    { icon: '🎁', text: 'Gutschein beilegen', detail: 'Kleines Aufmerksamkeitsgeschenk per Post', type: 'gift' }
+  ];
+
+  actions.forEach(action => {
+    const actionEl = document.createElement('div');
+    actionEl.className = 'action-plan__step birthday-action';
+    actionEl.innerHTML = `
+      <div class="action-plan__checkbox birthday-action__icon">${action.icon}</div>
+      <div class="action-plan__step-content">
+        <div class="action-plan__text">${action.text}</div>
+        <div class="action-plan__detail">${action.detail}</div>
+      </div>
+    `;
+
+    actionEl.addEventListener('click', () => {
+      actionEl.classList.toggle('action-plan__step--done');
+      const checkbox = actionEl.querySelector('.birthday-action__icon');
+      if (actionEl.classList.contains('action-plan__step--done')) {
+        checkbox.innerHTML = '✓';
+      } else {
+        checkbox.innerHTML = action.icon;
+      }
+    });
+
+    elements.actionPlanList.appendChild(actionEl);
+  });
+
+  // Generate greeting suggestion
+  const isRound = client.age % 10 === 0;
+  const greeting = isRound
+    ? `Liebe/r ${client.name.split(' ')[1] ? 'Herr/Frau ' + client.name.split(' ').pop() : client.name},\n\nherzlichen Glückwunsch zum ${client.age}. Geburtstag! 🎉\n\nEin runder Geburtstag ist immer ein besonderer Anlass – und auch ein guter Zeitpunkt, um Ihre Absicherung auf den neuesten Stand zu bringen.\n\nIch würde mich freuen, bei einem kurzen Gespräch Ihre aktuelle Situation zu besprechen.\n\nAlles Gute und beste Gesundheit!\n\nMit herzlichen Grüßen\nIhr TELIS-Berater`
+    : `Liebe/r ${client.name.split(' ')[1] ? 'Herr/Frau ' + client.name.split(' ').pop() : client.name},\n\nherzlichen Glückwunsch zum Geburtstag! 🎂\n\nIch wünsche Ihnen alles Gute, Gesundheit und Zufriedenheit für das neue Lebensjahr.\n\nBei Fragen rund um Ihre Absicherung stehe ich Ihnen jederzeit gerne zur Verfügung.\n\nHerzliche Grüße\nIhr TELIS-Berater`;
+
+  elements.aiResponseText.value = greeting;
+  elements.aiStatus.textContent = isRound ? '🎉 Runder Geburtstag!' : 'Vorlage';
+}
+
+// ========================================
+// Rework / Nacharbeit View
+// ========================================
+
+function renderReworkView(request) {
+  elements.requestDetail.querySelector('.request-detail__empty').style.display = 'none';
+  elements.requestContent.style.display = 'none';
+
+  // Remove any existing custom view
+  const existing = elements.requestDetail.querySelector('.custom-list-view');
+  if (existing) existing.remove();
+
+  const urgentCount = request.documents.filter(d => d.priority === 'high').length;
+
+  const view = document.createElement('div');
+  view.className = 'custom-list-view';
+  view.innerHTML = `
+    <div class="custom-list-view__header">
+      <div class="custom-list-view__title">
+        <span class="custom-list-view__icon">📋</span>
+        <div>
+          <h2>Nacharbeit – Offene Dokumente</h2>
+          <p class="custom-list-view__subtitle">Unterschriften & Unterlagen von Mandanten einholen</p>
+        </div>
+      </div>
+      <div class="custom-list-view__stats">
+        <div class="stat-card stat-card--highlight">
+          <span class="stat-card__value">${request.documents.length}</span>
+          <span class="stat-card__label">Offen</span>
+        </div>
+        ${urgentCount > 0 ? `
+        <div class="stat-card stat-card--urgent">
+          <span class="stat-card__value">${urgentCount}</span>
+          <span class="stat-card__label">Dringend</span>
+        </div>` : ''}
+      </div>
+    </div>
+    <div class="custom-list-view__info">
+      <p>${request.originalMessage}</p>
+    </div>
+    <div class="rework-list">
+      ${request.documents.map(doc => `
+        <div class="rework-card ${state.selectedClient?.id === doc.id ? 'rework-card--active' : ''} ${doc.priority === 'high' ? 'rework-card--urgent' : ''}"
+             data-doc-id="${doc.id}">
+          <div class="rework-card__top">
+            <div class="rework-card__client">
+              <span class="rework-card__avatar">${doc.clientName.charAt(0)}</span>
+              <div>
+                <strong>${doc.clientName}</strong>
+                <span class="rework-card__company">${doc.company}</span>
+              </div>
+            </div>
+            <div class="rework-card__deadline ${doc.priority === 'high' ? 'rework-card__deadline--urgent' : ''}">
+              <span>⏳</span> Frist: ${doc.deadline}
+            </div>
+          </div>
+          <div class="rework-card__body">
+            <div class="rework-card__doc-type">
+              <span>📄</span> ${doc.documentType}
+            </div>
+            <div class="rework-card__contract">Vertrag: ${doc.contractNumber}</div>
+            <p class="rework-card__description">${doc.description}</p>
+          </div>
+          <div class="rework-card__footer">
+            <span class="rework-card__status rework-card__status--${doc.status}">
+              <span class="status-dot"></span>
+              ${doc.status === 'offen' ? 'Offen' : 'Erledigt'}
+            </span>
+            <span class="rework-card__arrow">→</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  elements.requestDetail.appendChild(view);
+
+  // Add click handlers
+  view.querySelectorAll('.rework-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const docId = card.dataset.docId;
+      const doc = request.documents.find(d => d.id === docId);
+      if (doc) {
+        selectReworkDocument(doc, request);
+      }
+    });
+  });
+
+  // Show general guidance
+  elements.actionPlanSection.style.display = 'none';
+  elements.aiResponseText.value = 'Wählen Sie einen Vorgang aus, um die Bearbeitungsschritte und Kontaktmöglichkeiten zu sehen.';
+  elements.aiStatus.textContent = 'Bereit';
+}
+
+function selectReworkDocument(doc, request) {
+  state.selectedClient = { id: doc.id };
+
+  // Update active state
+  const cards = elements.requestDetail.querySelectorAll('.rework-card');
+  cards.forEach(card => {
+    card.classList.toggle('rework-card--active', card.dataset.docId === doc.id);
+  });
+
+  // Show rework actions
+  renderReworkActions(doc);
+}
+
+function renderReworkActions(doc) {
+  elements.actionPlanSection.style.display = '';
+
+  const header = elements.actionPlanSection.querySelector('.action-plan__header h3');
+  header.innerHTML = `<span class="action-plan__icon">📋</span> Nacharbeit: ${doc.clientName}`;
+  elements.actionPlanProgress.textContent = '0/6';
+
+  elements.actionPlanList.innerHTML = '';
+
+  const steps = [
+    { icon: '📞', text: 'Mandant kontaktieren', detail: `${doc.clientName} anrufen: ${doc.clientPhone}` },
+    { icon: '📄', text: 'Dokument vorbereiten', detail: `${doc.documentType} zum Versand vorbereiten` },
+    { icon: '✉️', text: 'Zur Unterschrift zusenden', detail: 'Per E-Mail, Post oder persönliche Übergabe' },
+    { icon: '✍️', text: 'Unterschriebenes Dokument einsammeln', detail: 'Rücklauf des Dokuments sicherstellen' },
+    { icon: '📤', text: 'An Gesellschaft zurücksenden', detail: `Unterschriebenes Dokument an ${doc.company} senden` },
+    { icon: '✅', text: 'Vorgang abschließen', detail: 'Bestätigung der Gesellschaft abwarten und dokumentieren' }
+  ];
+
+  steps.forEach(step => {
+    const stepEl = document.createElement('div');
+    stepEl.className = 'action-plan__step rework-action';
+    stepEl.innerHTML = `
+      <div class="action-plan__checkbox rework-action__icon">${step.icon}</div>
+      <div class="action-plan__step-content">
+        <div class="action-plan__text">${step.text}</div>
+        <div class="action-plan__detail">${step.detail}</div>
+      </div>
+    `;
+
+    stepEl.addEventListener('click', () => {
+      stepEl.classList.toggle('action-plan__step--done');
+      const checkbox = stepEl.querySelector('.rework-action__icon');
+      if (stepEl.classList.contains('action-plan__step--done')) {
+        checkbox.innerHTML = '✓';
+      } else {
+        checkbox.innerHTML = step.icon;
+      }
+      // Update progress
+      const total = elements.actionPlanList.children.length;
+      const done = elements.actionPlanList.querySelectorAll('.action-plan__step--done').length;
+      elements.actionPlanProgress.textContent = `${done}/${total}`;
+    });
+
+    elements.actionPlanList.appendChild(stepEl);
+  });
+
+  // Generate client message
+  const lastName = doc.clientName.split(' ').pop();
+  elements.aiResponseText.value = `Sehr geehrte/r Herr/Frau ${lastName},\n\nim Rahmen Ihres Versicherungsantrags bei der ${doc.company} (Vertragsnr.: ${doc.contractNumber}) benötigen wir noch Ihre Unterschrift auf folgendem Dokument:\n\n📄 ${doc.documentType}\n\n${doc.description}\n\n⏳ Bitte senden Sie das unterschriebene Dokument bis zum ${doc.deadline} an uns zurück.\n\nSie haben folgende Möglichkeiten:\n• Digitale Unterschrift per E-Mail\n• Persönliche Übergabe im Büro\n• Per Post an unsere Adresse\n\nBei Fragen stehe ich Ihnen gerne zur Verfügung.\n\nMit freundlichen Grüßen\nIhr TELIS-Berater\n\nKontakt: ${doc.clientPhone} | ${doc.clientEmail}`;
+  elements.aiStatus.textContent = 'Vorlage';
 }
 
 // Generate AI response for the selected request
