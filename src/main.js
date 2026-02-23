@@ -58,7 +58,7 @@ const actionPlans = {
     { text: 'Dokument an Kunden senden', detail: 'Per E-Mail oder Post zustellen' }
   ],
   yearEnd: [
-    { text: 'Mandantenakte sichten', detail: 'Bestehende Verträge und Versorgungslücken prüfen' },
+    { text: 'Mandanten-Dashboard sichten', detail: 'Bestehende Verträge und Versorgungslücken prüfen' },
     { text: 'Beratungstermin vereinbaren', detail: 'Telefonisch oder per E-Mail Termin abstimmen' },
     { text: 'Steuerliche Situation besprechen', detail: 'Sonderausgaben-Potenzial und Freibeträge klären' },
     { text: 'Produktvorschlag erstellen', detail: 'Passendes Angebot mit Berechnung vorbereiten' },
