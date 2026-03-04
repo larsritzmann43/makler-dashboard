@@ -80,7 +80,10 @@ const state = {
   selectedClient: null,
   clientProgress: {}, // tracks action plan progress per client
   currentFilter: 'all',
-  currentView: 'requests' // for mobile
+  currentView: 'requests', // for mobile
+  searchQuery: '',
+  leftCollapsed: false,
+  rightCollapsed: false
 };
 
 // DOM Elements
@@ -119,7 +122,15 @@ const elements = {
   // Action plan elements
   actionPlanSection: document.getElementById('actionPlanSection'),
   actionPlanList: document.getElementById('actionPlanList'),
-  actionPlanProgress: document.getElementById('actionPlanProgress')
+  actionPlanProgress: document.getElementById('actionPlanProgress'),
+
+  // Sidebar toggle elements
+  sidebarLeft: document.getElementById('sidebarLeft'),
+  sidebarRight: document.getElementById('sidebarRight'),
+  toggleLeft: document.getElementById('toggleLeft'),
+  toggleRight: document.getElementById('toggleRight'),
+  searchInput: document.getElementById('searchInput'),
+  dashboard: document.querySelector('.dashboard')
 };
 
 // Initialize the application
@@ -133,6 +144,8 @@ function init() {
   setupEventListeners();
   setupMobileNav();
   setupResizeHandles();
+  setupSidebarToggles();
+  setupSearch();
 }
 
 // Update date and time display
@@ -158,13 +171,27 @@ function renderRequestList() {
 
   // Apply filter
   const filteredRequests = sortedRequests.filter(request => {
-    if (state.currentFilter === 'all') return true;
-    const category = categories[request.category];
-    const priority = category.priority;
-    return priority === state.currentFilter;
+    if (state.currentFilter !== 'all') {
+      const category = categories[request.category];
+      const priority = category.priority;
+      if (priority !== state.currentFilter) return false;
+    }
+    // Apply search filter
+    if (state.searchQuery) {
+      const name = request.sender.name.toLowerCase();
+      const preview = request.preview.toLowerCase();
+      const cat = categories[request.category].name.toLowerCase();
+      if (!name.includes(state.searchQuery) && !preview.includes(state.searchQuery) && !cat.includes(state.searchQuery)) {
+        return false;
+      }
+    }
+    return true;
   });
 
-  elements.requestCount.textContent = filteredRequests.length;
+  // Only update badge text when not in urgent mode
+  if (state.currentFilter !== 'high') {
+    elements.requestCount.textContent = filteredRequests.length;
+  }
 
   elements.requestList.innerHTML = filteredRequests.map(request => {
     const channel = channels[request.channel];
@@ -181,13 +208,12 @@ function renderRequestList() {
         <div class="request-item__content">
           <div class="request-item__header">
             <span class="request-item__sender">${request.sender.name}</span>
-            <span class="request-item__time">${formatTimeAgo(request.timestamp)}</span>
+            <span class="request-item__meta">
+              <span class="request-item__priority request-item__priority--${priority}"></span>
+              <span class="request-item__time">${formatTimeAgo(request.timestamp)}</span>
+            </span>
           </div>
           <div class="request-item__preview">${request.preview}</div>
-          <div class="request-item__footer">
-            <span class="request-item__category">${category.name}</span>
-            <span class="request-item__priority request-item__priority--${priority}"></span>
-          </div>
         </div>
       </div>
     `;
@@ -937,15 +963,31 @@ function showNotification(message) {
 
 // Setup event listeners
 function setupEventListeners() {
-  // Filter buttons
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('filter-btn--active'));
-      btn.classList.add('filter-btn--active');
-      state.currentFilter = btn.dataset.filter;
-      renderRequestList();
+  // Badge toggle filter (count ↔ 🔥)
+  const badgeEl = document.getElementById('requestCount');
+
+  // Global toggle function (for inline onclick fallback)
+  window.toggleBadgeFilter = function () {
+    const badge = document.getElementById('requestCount');
+    if (!badge) return;
+
+    if (state.currentFilter === 'all') {
+      state.currentFilter = 'high';
+      badge.classList.add('badge--urgent');
+      badge.textContent = '🔥';
+    } else {
+      state.currentFilter = 'all';
+      badge.classList.remove('badge--urgent');
+    }
+    renderRequestList();
+  };
+
+  if (badgeEl) {
+    badgeEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.toggleBadgeFilter();
     });
-  });
+  }
 
   // Regenerate button
   elements.regenerateBtn.addEventListener('click', async () => {
@@ -974,6 +1016,40 @@ function setupEventListeners() {
       }
     }
   });
+
+  // New Process Modal logic
+  const newProcessBtn = document.getElementById('newProcessBtn');
+  const newProcessModal = document.getElementById('newProcessModal');
+  const closeProcessModalBtn = document.getElementById('closeProcessModalBtn');
+
+  if (newProcessBtn && newProcessModal && closeProcessModalBtn) {
+    newProcessBtn.addEventListener('click', () => {
+      newProcessModal.style.display = 'flex';
+      // Small timeout for the transition to take effect after display:flex
+      setTimeout(() => newProcessModal.classList.add('new-process-overlay--visible'), 10);
+    });
+
+    const closeProcessModal = () => {
+      newProcessModal.classList.remove('new-process-overlay--visible');
+      setTimeout(() => newProcessModal.style.display = 'none', 250);
+    };
+
+    closeProcessModalBtn.addEventListener('click', closeProcessModal);
+
+    newProcessModal.addEventListener('click', (e) => {
+      if (e.target === newProcessModal) closeProcessModal();
+    });
+
+    document.querySelectorAll('.process-item').forEach(item => {
+      item.addEventListener('click', () => {
+        closeProcessModal();
+        const processType = item.querySelector('.process-item__title').textContent;
+        setTimeout(() => {
+          showNotification(`Neuer Vorgang gestartet: ${processType} 🚀`);
+        }, 300);
+      });
+    });
+  }
 }
 
 // Send a chat message
@@ -1194,10 +1270,61 @@ function setupResizeHandles() {
   handleRight.addEventListener('mousedown', (e) => onMouseDown(e, handleRight));
 }
 
+// Setup sidebar toggle functionality
+function setupSidebarToggles() {
+  // Add transition to dashboard grid
+  if (elements.dashboard) {
+    elements.dashboard.style.transition = 'grid-template-columns 0.3s ease';
+  }
+
+  if (elements.toggleLeft) {
+    elements.toggleLeft.addEventListener('click', () => {
+      state.leftCollapsed = !state.leftCollapsed;
+      elements.sidebarLeft.classList.toggle('sidebar--collapsed', state.leftCollapsed);
+      // Hide resize handle when collapsed
+      const handleLeft = document.getElementById('resizeHandleLeft');
+      if (handleLeft) handleLeft.style.display = state.leftCollapsed ? 'none' : '';
+      updateGridColumns();
+    });
+  }
+  if (elements.toggleRight) {
+    elements.toggleRight.addEventListener('click', () => {
+      state.rightCollapsed = !state.rightCollapsed;
+      elements.sidebarRight.classList.toggle('sidebar--collapsed', state.rightCollapsed);
+      const handleRight = document.getElementById('resizeHandleRight');
+      if (handleRight) handleRight.style.display = state.rightCollapsed ? 'none' : '';
+      updateGridColumns();
+    });
+  }
+}
+
+function updateGridColumns() {
+  const left = state.leftCollapsed ? '0' : 'var(--sidebar-width)';
+  const right = state.rightCollapsed ? '0' : 'var(--sidebar-width)';
+  elements.dashboard.style.gridTemplateColumns = `${left} 0 1fr 0 ${right}`;
+}
+
+// Setup search functionality
+function setupSearch() {
+  if (elements.searchInput) {
+    elements.searchInput.addEventListener('input', (e) => {
+      state.searchQuery = e.target.value.toLowerCase().trim();
+      renderRequestList();
+    });
+  }
+}
+
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', init);
+let initialized = false;
+document.addEventListener('DOMContentLoaded', () => {
+  if (!initialized) {
+    initialized = true;
+    init();
+  }
+});
 
 // Also init immediately if DOM already loaded
-if (document.readyState !== 'loading') {
+if (document.readyState !== 'loading' && !initialized) {
+  initialized = true;
   init();
 }

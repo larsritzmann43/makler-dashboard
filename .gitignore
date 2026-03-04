@@ -1,3 +1,9 @@
+# Presentations & Documents
+*.HEIC
+*.docx
+*.iapresenter
+_praesentation_*
+
 # Logs
 logs
 *.log
