@@ -6,7 +6,8 @@ export const channels = {
   phone: { icon: '📞', name: 'Telefon', color: '#43a047' },
   whatsapp: { icon: '💬', name: 'WhatsApp', color: '#25d366' },
   instagram: { icon: '📸', name: 'Instagram', color: '#e1306c' },
-  backoffice: { icon: '🏢', name: 'Backoffice', color: '#6a1b9a' }
+  backoffice: { icon: '🏢', name: 'Backoffice', color: '#6a1b9a' },
+  portal: { icon: '🌐', name: 'Mandantenportal', color: '#0277bd' }
 };
 
 // Priority definitions
@@ -92,10 +93,12 @@ export const mockRequests = [
     category: 'damage',
     sender: {
       name: 'Michael Schneider',
-      details: 'Vertrag: KFZ-2847291',
+      contracts: [
+        { sparte: 'KFZ', gesellschaft: 'HUK-COBURG', vertragsnummer: 'KFZ-2847291' }
+      ],
       phone: '+49 171 2345678'
     },
-    timestamp: new Date('2026-02-07T17:45:00'),
+    timestamp: new Date('2026-03-04T08:45:00'),
     preview: 'Dringend - Autounfall auf der A7, brauche sofortige Hilfe',
     originalMessage: `Guten Tag,
 
@@ -119,10 +122,10 @@ Handynummer: 0171-2345678`,
     category: 'appointment',
     sender: {
       name: 'Familie Weber',
-      details: 'Mandant seit 2018',
+      contracts: [],
       email: 'weber.familie@gmx.de'
     },
-    timestamp: new Date('2026-02-07T16:30:00'),
+    timestamp: new Date('2026-03-03T16:30:00'),
     preview: 'Beratungstermin wegen Altersvorsorge für unsere Kinder gewünscht',
     originalMessage: `Lieber Herr Makler,
 
@@ -139,14 +142,16 @@ Thomas und Maria Weber`,
   },
   {
     id: 3,
-    channel: 'whatsapp',
+    channel: 'portal',
     category: 'question',
     sender: {
       name: 'Lisa Hartmann',
-      details: 'Vertrag: PHV-9912834',
+      contracts: [
+        { sparte: 'Haftpflicht', gesellschaft: 'VHV Versicherungen', vertragsnummer: 'PHV-9912834' }
+      ],
       phone: '+49 160 9876543'
     },
-    timestamp: new Date('2026-02-07T15:15:00'),
+    timestamp: new Date('2026-03-03T09:15:00'),
     preview: 'Schnelle Frage: Bin ich im Ausland noch versichert?',
     originalMessage: `Hi! 👋
 
@@ -164,10 +169,12 @@ Danke! 🙏`,
     category: 'contractChange',
     sender: {
       name: 'Dr. Andreas Müller',
-      details: 'Vertrag: BU-4472918',
+      contracts: [
+        { sparte: 'Berufsunfähigkeit', gesellschaft: 'Alte Leipziger', vertragsnummer: 'BU-4472918' }
+      ],
       email: 'a.mueller@kanzlei-mueller.de'
     },
-    timestamp: new Date('2026-02-07T14:00:00'),
+    timestamp: new Date('2026-03-02T14:00:00'),
     preview: 'Erhöhung der Berufsunfähigkeitsrente beantragen',
     originalMessage: `Sehr geehrter Herr Makler,
 
@@ -189,10 +196,10 @@ Rechtsanwalt und Partner`,
     category: 'question',
     sender: {
       name: 'Julia_Fitness23',
-      details: 'Neukontakt via Instagram',
+      contracts: [],
       instagram: '@Julia_Fitness23'
     },
-    timestamp: new Date('2026-02-07T12:45:00'),
+    timestamp: new Date('2026-03-01T12:45:00'),
     preview: 'DM: Suche eine gute Krankenversicherung als Selbstständige',
     originalMessage: `Hey! 
 
@@ -212,10 +219,12 @@ Könnt ihr mich beraten?`,
     category: 'documents',
     sender: {
       name: 'Petra Schulze',
-      details: 'Vertrag: WG-1129384',
+      contracts: [
+        { sparte: 'Hausrat', gesellschaft: 'DEVK', vertragsnummer: 'HR-1129384' }
+      ],
       email: 'petra.schulze@web.de'
     },
-    timestamp: new Date('2026-02-07T11:30:00'),
+    timestamp: new Date('2026-02-28T11:30:00'),
     preview: 'Versicherungsbestätigung für Vermieter benötigt',
     originalMessage: `Guten Tag,
 
@@ -240,21 +249,23 @@ Petra Schulze`,
     category: 'damage',
     sender: {
       name: 'Stefan Klein',
-      details: 'Vertrag: HR-3384756',
+      contracts: [
+        { sparte: 'Hausrat', gesellschaft: 'Allianz', vertragsnummer: 'HR-3384756' }
+      ],
       phone: '+49 152 1234567'
     },
-    timestamp: new Date('2026-02-07T10:20:00'),
-    preview: 'Wasserschaden in der Küche - Rohr geplatzt!',
-    originalMessage: `HILFE! 😱
+    timestamp: new Date('2026-03-04T10:20:00'),
+    preview: 'Fahrrad an der Uni geklaut!',
+    originalMessage: `Hey, mir wurde gerade mein Fahrrad an der Uni geklaut! 😡
 
-Bei mir ist gerade ein Rohr unter der Spüle geplatzt! Die ganze Küche steht unter Wasser!
+Ich hatte es vor der Bibliothek abgeschlossen und als ich nach 2 Stunden rauskam, war es weg. Das Schloss war aufgebrochen.
 
-Ich habe den Haupthahn abgedreht, aber der Schaden ist groß. Boden, Schränke - alles durchnässt.
+Es ist ein Canyon Roadlite, ca. 1.200 EUR wert. Ich habe es erst letztes Jahr gekauft.
 
-Was muss ich jetzt machen? Kann ich einen Handwerker rufen oder muss erst jemand von der Versicherung kommen?
+Ich habe schon eine Anzeige bei der Polizei gemacht und das Aktenzeichen bekommen.
 
-Bitte schnell antworten!`,
-    summary: 'Akuter Wasserschaden: Rohrbruch in Küche, Boden und Schränke betroffen. Haupthahn abgedreht. Mandant fragt nach nächsten Schritten.',
+Was muss ich jetzt tun, damit die Versicherung zahlt? Welche Unterlagen braucht ihr?`,
+    summary: 'Fahrraddiebstahl an der Uni: Canyon Roadlite (ca. 1.200 EUR), Schloss aufgebrochen. Polizeiliche Anzeige bereits erstattet. Mandant fragt nach Ablauf der Schadenmeldung.',
     answered: false
   },
   {
@@ -263,10 +274,12 @@ Bitte schnell antworten!`,
     category: 'cancellation',
     sender: {
       name: 'Markus Braun',
-      details: 'Vertrag: RS-7761234',
+      contracts: [
+        { sparte: 'Rechtsschutz', gesellschaft: 'ARAG', vertragsnummer: 'RS-7761234' }
+      ],
       email: 'm.braun@outlook.de'
     },
-    timestamp: new Date('2026-02-07T09:00:00'),
+    timestamp: new Date('2026-02-27T09:00:00'),
     preview: 'Kündigung meiner Rechtsschutzversicherung',
     originalMessage: `Sehr geehrte Damen und Herren,
 
@@ -290,7 +303,7 @@ Markus Braun`,
       name: 'Backoffice TELIS',
       details: 'Interne Benachrichtigung'
     },
-    timestamp: new Date('2026-02-23T08:00:00'),
+    timestamp: new Date('2026-03-04T08:00:00'),
     preview: 'Potenziale Jahresendgeschäft – 12 Mandanten zu beraten',
     originalMessage: `Sehr geehrter Berater,
 
@@ -326,7 +339,7 @@ Ihr Backoffice-Team`,
       name: 'Backoffice TELIS',
       details: 'Interne Benachrichtigung'
     },
-    timestamp: new Date('2026-02-23T07:00:00'),
+    timestamp: new Date('2026-03-04T07:00:00'),
     preview: 'Heutige Geburtstage – 5 Mandanten gratulieren',
     originalMessage: `Guten Morgen,
 
@@ -354,7 +367,7 @@ Ihr Backoffice-Team`,
       name: 'Backoffice TELIS',
       details: 'Interne Benachrichtigung'
     },
-    timestamp: new Date('2026-02-23T09:30:00'),
+    timestamp: new Date('2026-03-04T09:30:00'),
     preview: 'Nacharbeit – 3 offene Dokumente von Gesellschaften',
     originalMessage: `Sehr geehrter Berater,
 
@@ -407,24 +420,96 @@ Ihr Backoffice-Team`,
         status: 'offen'
       }
     ]
+  },
+  {
+    id: 12,
+    channel: 'whatsapp',
+    category: 'question',
+    sender: {
+      name: 'Tim Bergmann',
+      contracts: [],
+      phone: '+49 176 8834521'
+    },
+    timestamp: new Date('2026-03-04T11:10:00'),
+    preview: 'E-Auto gekauft – welche Versicherung brauche ich?',
+    originalMessage: `Hallo! 🚗⚡
+
+Ich habe mir gerade einen Tesla Model 3 bestellt und brauche eine vernünftige Versicherung dafür.
+
+Ein Kollege hat Sie mir empfohlen. Worauf muss ich bei der Versicherung für ein Elektroauto besonders achten? Gibt es spezielle Tarife für E-Autos?
+
+Lieferung ist voraussichtlich Ende März.
+
+Danke vorab!
+Tim Bergmann`,
+    summary: 'Neukontakt per Empfehlung: Tesla Model 3 bestellt, sucht E-Auto-Versicherung. Lieferung Ende März. Fragt nach speziellen E-Auto-Tarifen.',
+    answered: false
+  },
+  {
+    id: 13,
+    channel: 'phone',
+    category: 'damage',
+    sender: {
+      name: 'Ingrid Sommer',
+      contracts: [
+        { sparte: 'Gebäude', gesellschaft: 'Provinzial', vertragsnummer: 'WG-5529183' },
+        { sparte: 'Hausrat', gesellschaft: 'HDI Versicherung', vertragsnummer: 'HR-5529741' }
+      ],
+      phone: '+49 160 7771002'
+    },
+    timestamp: new Date('2026-03-03T18:45:00'),
+    preview: 'Sturmschaden am Dach – Ziegel abgedeckt, Wasser läuft rein',
+    originalMessage: `Guten Abend,
+
+nach dem Sturm heute Nachmittag fehlen bei uns mehrere Dachziegel. Es regnet bereits ins Dachgeschoss rein und die Decke im Schlafzimmer hat schon Wasserflecken.
+
+Ich habe eine Plane notdürftig über die offene Stelle gelegt, aber das hält nicht lange.
+
+Können Sie mir helfen? Brauche ich einen Dachdecker und übernimmt das die Wohngebäudeversicherung?
+
+Ingrid Sommer
+Tel: 0160-7771002`,
+    summary: 'Akuter Sturmschaden: Dachziegel abgedeckt, Wassereintritt ins Dachgeschoss. Notdürftig mit Plane abgedeckt. Fragt nach Kostenübernahme durch Wohngebäudeversicherung.',
+    answered: false
+  },
+  {
+    id: 14,
+    channel: 'email',
+    category: 'contractChange',
+    sender: {
+      name: 'Sarah & Daniel Koch',
+      contracts: [
+        { sparte: 'Haftpflicht', gesellschaft: 'Gothaer', vertragsnummer: 'PHV-8821455' },
+        { sparte: 'Berufsunfähigkeit', gesellschaft: 'Nürnberger', vertragsnummer: 'BU-8823901' }
+      ],
+      email: 'koch.family@gmail.com'
+    },
+    timestamp: new Date('2026-03-02T09:20:00'),
+    preview: 'Nachwuchs kommt! Welche Versicherungen müssen wir anpassen?',
+    originalMessage: `Lieber Herr Ritzmann,
+
+wir freuen uns Ihnen mitzuteilen, dass wir im Juni unser erstes Kind erwarten! 🎉
+
+Jetzt haben wir natürlich einige Fragen:
+- Muss unsere Haftpflicht angepasst werden (Familien-Tarif)?
+- Brauchen wir eine Risikolebensversicherung?
+- Sarah geht 12 Monate in Elternzeit – hat das Auswirkungen auf die BU?
+- Ab wann sollte man eine Kinderunfallversicherung abschließen?
+
+Könnten wir einen Termin machen, um das alles in Ruhe durchzusprechen?
+
+Herzliche Grüße
+Sarah & Daniel Koch`,
+    summary: 'Nachwuchs im Juni erwartet. Fragen zu: Familientarif PHV, Risikoleben, BU während Elternzeit, Kinderunfallversicherung. Wünschen Beratungstermin.',
+    answered: false
   }
 ];
 
-// Function to get requests sorted by priority and time
+// Function to get requests sorted by date (newest first)
 export function getSortedRequests(requests = mockRequests) {
   return [...requests].sort((a, b) => {
-    const categoryA = categories[a.category];
-    const categoryB = categories[b.category];
-    const priorityA = priorities[categoryA.priority].order;
-    const priorityB = priorities[categoryB.priority].order;
-
-    // First sort by priority
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB;
-    }
-
-    // Then by timestamp (oldest first within same priority)
-    return a.timestamp - b.timestamp;
+    // Sort by timestamp, newest first
+    return b.timestamp - a.timestamp;
   });
 }
 

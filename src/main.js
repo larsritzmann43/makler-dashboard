@@ -81,9 +81,7 @@ const state = {
   clientProgress: {}, // tracks action plan progress per client
   currentFilter: 'all',
   currentView: 'requests', // for mobile
-  searchQuery: '',
-  leftCollapsed: false,
-  rightCollapsed: false
+  searchQuery: ''
 };
 
 // DOM Elements
@@ -97,13 +95,11 @@ const elements = {
   currentTime: document.getElementById('currentTime'),
 
   // Detail elements
-  channelIcon: document.getElementById('channelIcon'),
-  channelName: document.getElementById('channelName'),
-  priorityBadge: document.getElementById('priorityBadge'),
+  requestChannel: document.getElementById('requestChannel'),
   senderName: document.getElementById('senderName'),
-  senderDetails: document.getElementById('senderDetails'),
   requestTime: document.getElementById('requestTime'),
   requestCategory: document.getElementById('requestCategory'),
+  requestContracts: document.getElementById('requestContracts'),
   requestSummary: document.getElementById('requestSummary'),
   originalMessage: document.getElementById('originalMessage'),
   appointmentSuggestion: document.getElementById('appointmentSuggestion'),
@@ -124,13 +120,7 @@ const elements = {
   actionPlanList: document.getElementById('actionPlanList'),
   actionPlanProgress: document.getElementById('actionPlanProgress'),
 
-  // Sidebar toggle elements
-  sidebarLeft: document.getElementById('sidebarLeft'),
-  sidebarRight: document.getElementById('sidebarRight'),
-  toggleLeft: document.getElementById('toggleLeft'),
-  toggleRight: document.getElementById('toggleRight'),
-  searchInput: document.getElementById('searchInput'),
-  dashboard: document.querySelector('.dashboard')
+  searchInput: document.getElementById('searchInput')
 };
 
 // Initialize the application
@@ -144,7 +134,6 @@ function init() {
   setupEventListeners();
   setupMobileNav();
   setupResizeHandles();
-  setupSidebarToggles();
   setupSearch();
 }
 
@@ -259,9 +248,8 @@ async function selectRequest(requestId) {
 
 // Render standard request detail view
 async function renderStandardRequestView(request) {
-  const channel = channels[request.channel];
   const category = categories[request.category];
-  const priority = category.priority;
+  const channel = channels[request.channel];
 
   // Remove any existing custom view
   const existing = elements.requestDetail.querySelector('.custom-list-view');
@@ -271,18 +259,24 @@ async function renderStandardRequestView(request) {
   elements.requestDetail.querySelector('.request-detail__empty').style.display = 'none';
   elements.requestContent.style.display = 'block';
 
-  // Fill in details
-  elements.channelIcon.textContent = channel.icon;
-  elements.channelName.textContent = channel.name;
-
-  elements.priorityBadge.textContent = priorities[priority].label;
-  elements.priorityBadge.className = `priority-badge priority-badge--${priority}`;
-
+  // Header: Name + Category Chip + Channel Chip + Time
   elements.senderName.textContent = request.sender.name;
-  elements.senderDetails.textContent = request.sender.details;
+  elements.requestCategory.textContent = category.name;
+  elements.requestCategory.className = `request-category request-category--${request.category}`;
+  elements.requestChannel.innerHTML = `<span class="request-channel__icon">${channel.icon}</span>${channel.name}`;
+  elements.requestChannel.className = `request-channel request-channel--${request.channel}`;
   elements.requestTime.textContent = formatDateTime(request.timestamp);
 
-  elements.requestCategory.textContent = `${category.icon} ${category.name}`;
+  // Contracts from sender
+  if (request.sender.contracts && request.sender.contracts.length > 0) {
+    elements.requestContracts.innerHTML = request.sender.contracts.map(c =>
+      `<div class="contract-chip"><span class="contract-chip__sparte">${c.sparte}</span>${c.gesellschaft}, ${c.vertragsnummer}</div>`
+    ).join('');
+  } else {
+    elements.requestContracts.innerHTML = '';
+  }
+
+  // Summary & Original Message
   elements.requestSummary.textContent = request.summary;
   elements.originalMessage.textContent = request.originalMessage;
 
@@ -1268,40 +1262,6 @@ function setupResizeHandles() {
 
   handleLeft.addEventListener('mousedown', (e) => onMouseDown(e, handleLeft));
   handleRight.addEventListener('mousedown', (e) => onMouseDown(e, handleRight));
-}
-
-// Setup sidebar toggle functionality
-function setupSidebarToggles() {
-  // Add transition to dashboard grid
-  if (elements.dashboard) {
-    elements.dashboard.style.transition = 'grid-template-columns 0.3s ease';
-  }
-
-  if (elements.toggleLeft) {
-    elements.toggleLeft.addEventListener('click', () => {
-      state.leftCollapsed = !state.leftCollapsed;
-      elements.sidebarLeft.classList.toggle('sidebar--collapsed', state.leftCollapsed);
-      // Hide resize handle when collapsed
-      const handleLeft = document.getElementById('resizeHandleLeft');
-      if (handleLeft) handleLeft.style.display = state.leftCollapsed ? 'none' : '';
-      updateGridColumns();
-    });
-  }
-  if (elements.toggleRight) {
-    elements.toggleRight.addEventListener('click', () => {
-      state.rightCollapsed = !state.rightCollapsed;
-      elements.sidebarRight.classList.toggle('sidebar--collapsed', state.rightCollapsed);
-      const handleRight = document.getElementById('resizeHandleRight');
-      if (handleRight) handleRight.style.display = state.rightCollapsed ? 'none' : '';
-      updateGridColumns();
-    });
-  }
-}
-
-function updateGridColumns() {
-  const left = state.leftCollapsed ? '0' : 'var(--sidebar-width)';
-  const right = state.rightCollapsed ? '0' : 'var(--sidebar-width)';
-  elements.dashboard.style.gridTemplateColumns = `${left} 0 1fr 0 ${right}`;
 }
 
 // Setup search functionality
