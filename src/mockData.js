@@ -502,6 +502,72 @@ Herzliche Grüße
 Sarah & Daniel Koch`,
     summary: 'Nachwuchs im Juni erwartet. Fragen zu: Familientarif PHV, Risikoleben, BU während Elternzeit, Kinderunfallversicherung. Wünschen Beratungstermin.',
     answered: false
+  },
+  {
+    id: 19,
+    channel: 'whatsapp',
+    category: 'damage',
+    sender: {
+      name: 'Thomas Bergmann',
+      phone: '+49 177 4832901',
+      contracts: [
+        { sparte: 'Hausrat', gesellschaft: 'HDI', vertragsnummer: 'HR-2021-88341' },
+        { sparte: 'Wohngebäude', gesellschaft: 'Allianz', vertragsnummer: 'WG-2019-55221' }
+      ]
+    },
+    timestamp: new Date('2026-03-07T11:00:00'),
+    preview: 'Herzlichen Dank! Das Geld ist auf meinem Konto eingegangen.',
+    originalMessage: `Hallo, ich wollte mich nur kurz melden und herzlich bedanken! Die Versicherung hat meinen Fahrraddiebstahl sehr schnell reguliert – das Geld ist heute Morgen auf meinem Konto eingegangen. Wirklich toll, wie unkompliziert das war. Vielen Dank für Ihre Unterstützung!`,
+    summary: 'Mandant bedankt sich für die schnelle Schadensregulierung nach Fahrraddiebstahl. Versicherungsleistung ausgezahlt, Mandant sehr zufrieden.',
+    answered: false,
+    impulse: {
+      variant: 'opportunity',
+      title: 'Upselling-Moment',
+      insight: 'Wohngebäudeversicherung (Allianz WG-2019-55221) vorhanden, aber kein Elementarschutz-Modul. Letzte Vertragsanpassung: vor 4 Jahren.',
+      text: 'Ihr Mandant ist nach der Schadensregulierung sehr zufrieden – ein idealer Moment für ein kurzes Gespräch. Im Wohngebäudevertrag fehlt das Elementarschutz-Modul. Elementarschäden (Überschwemmung, Starkregen) sind aktuell nicht abgedeckt.',
+      messageDraft: {
+        channel: 'whatsapp',
+        text: 'Guten Tag, Herr Bergmann! Es freut mich sehr, dass alles so reibungslos geklappt hat. Ich wollte die Gelegenheit nutzen und kurz fragen: In Ihrer Wohngebäudeversicherung ist aktuell kein Schutz gegen Elementarschäden wie Überschwemmung oder Starkregen enthalten. Angesichts der zunehmenden Unwetterereignisse wäre das eine sinnvolle Ergänzung – darf ich Ihnen dazu ein kurzes Angebot zusenden?'
+      }
+    }
+  },
+  {
+    id: 20,
+    channel: 'backoffice',
+    category: 'contractChange',
+    sender: {
+      name: 'Allianz Versicherung',
+      details: 'Automatische Benachrichtigung: Beitragsanpassung KFZ-Versicherung – Mandant Peter Hoffmann'
+    },
+    timestamp: new Date('2026-03-07T10:15:00'),
+    preview: 'Beitragsanpassung KFZ: +18% ab 01.04. – Sonderkündigungsrecht aktiv',
+    originalMessage: `Sehr geehrte Damen und Herren,
+
+wir informieren Sie über eine Beitragsanpassung in der Kfz-Versicherung Ihres Mandanten:
+
+Mandant: Peter Hoffmann
+Vertrag: KFZ-1988-77203 (VW Golf, Kennzeichen: M-PH 4421)
+Gesellschaft: Allianz Versicherung
+
+Aktueller Jahresbeitrag: 842,00 €
+Neuer Jahresbeitrag ab 01.04.2026: 993,56 € (+18,0 %)
+
+Das Sonderkündigungsrecht ist ab sofort aktiv. Frist: 28 Tage nach Erhalt dieser Mitteilung.
+
+Mit freundlichen Grüßen
+Allianz Versicherung AG`,
+    summary: 'Allianz meldet Beitragserhöhung von 18% für KFZ-Versicherung von Peter Hoffmann (842 € → 994 €/Jahr). Sonderkündigungsrecht aktiv, Frist läuft.',
+    answered: false,
+    impulse: {
+      variant: 'risk',
+      title: 'Retention-Risiko',
+      insight: 'Mandant Peter Hoffmann hat sich seit der Benachrichtigung noch nicht gemeldet. Sonderkündigungsrecht: noch 27 Tage aktiv. Ohne proaktiven Kontakt droht Vertragsverlust.',
+      text: 'Ihr Mandant hat eine Beitragserhöhung von 18% erhalten und hat noch 27 Tage Sonderkündigungsrecht. Er hat sich noch nicht gemeldet – kommen Sie ihm proaktiv entgegen, bevor er selbst kündigt oder ein Vergleichsportal nutzt.',
+      messageDraft: {
+        channel: 'whatsapp',
+        text: 'Guten Tag, Herr Hoffmann, ich wollte Sie kurz informieren: Aufgrund der aktuellen Beitragsanpassung bei Ihrer KFZ-Versicherung habe ich für Sie bereits Alternativen geprüft. Es gibt interessante Optionen – darf ich Sie kurz anrufen?'
+      }
+    }
   }
 ];
 

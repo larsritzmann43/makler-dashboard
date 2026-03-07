@@ -120,6 +120,9 @@ const elements = {
   actionPlanList: document.getElementById('actionPlanList'),
   actionPlanProgress: document.getElementById('actionPlanProgress'),
 
+  impulseSection: document.getElementById('impulseSection'),
+  impulseCard: document.getElementById('impulseCard'),
+
   searchInput: document.getElementById('searchInput')
 };
 
@@ -226,6 +229,9 @@ async function selectRequest(requestId) {
   state.selectedClient = null;
   renderRequestList(); // Update active state
 
+  // Hide impulse section by default; shown only for requests that have one
+  elements.impulseSection.style.display = 'none';
+
   // Handle special request types
   if (request.type === 'yearEnd') {
     renderYearEndView(request);
@@ -288,6 +294,43 @@ async function renderStandardRequestView(request) {
     elements.suggestedTime.textContent = `${appointment.time} Uhr`;
   } else {
     elements.appointmentSuggestion.style.display = 'none';
+  }
+
+  // Render impulse panel if present
+  if (request.impulse) {
+    const imp = request.impulse;
+    const draftIcon = imp.messageDraft.channel === 'whatsapp' ? '💬' : '📧';
+    const draftLabel = imp.messageDraft.channel === 'whatsapp' ? 'WhatsApp-Entwurf' : 'E-Mail-Entwurf';
+    elements.impulseCard.innerHTML = `
+      <div class="impulse-card impulse-card--${imp.variant}">
+        <div class="impulse-card__header">
+          <div class="impulse-card__label">
+            <span class="impulse-card__dot"></span>
+            <span class="impulse-card__title-text">${imp.title}</span>
+          </div>
+          <button class="impulse-card__dismiss" id="impulseCloseBtn" title="Schließen">×</button>
+        </div>
+        <p class="impulse-card__insight">${imp.insight}</p>
+        <p class="impulse-card__text">${imp.text}</p>
+        <div class="impulse-card__draft">
+          <div class="impulse-card__draft-header">
+            <span>${draftIcon} ${draftLabel}</span>
+            <button class="impulse-card__copy-btn" id="impulseCopyBtn">Kopieren</button>
+          </div>
+          <p class="impulse-card__draft-text">${imp.messageDraft.text}</p>
+        </div>
+      </div>
+    `;
+    elements.impulseSection.style.display = 'block';
+    document.getElementById('impulseCopyBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(imp.messageDraft.text);
+      const btn = document.getElementById('impulseCopyBtn');
+      btn.textContent = 'Kopiert ✓';
+      setTimeout(() => { if (document.getElementById('impulseCopyBtn')) document.getElementById('impulseCopyBtn').textContent = 'Kopieren'; }, 2000);
+    });
+    document.getElementById('impulseCloseBtn').addEventListener('click', () => {
+      elements.impulseSection.style.display = 'none';
+    });
   }
 
   // Render action plan for this category

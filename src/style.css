@@ -2458,3 +2458,128 @@ body {
   color: var(--color-priority-low);
   font-size: var(--font-size-base) !important;
 }
+
+/* ========================================
+   Impulse Card (Wachstumsarchitektur)
+   ======================================== */
+
+.impulse-card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-primary);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.impulse-card--opportunity {
+  border-left-color: #94c11f;
+  background: rgba(148, 193, 31, 0.05);
+}
+
+.impulse-card--risk {
+  border-left-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.impulse-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.impulse-card__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.impulse-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.impulse-card--opportunity .impulse-card__dot { background: #94c11f; }
+.impulse-card--risk .impulse-card__dot { background: #f59e0b; }
+
+.impulse-card__title-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.impulse-card--opportunity .impulse-card__title-text { color: #5a7a10; }
+.impulse-card--risk .impulse-card__title-text { color: #b45309; }
+
+.impulse-card__dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+.impulse-card__dismiss:hover { opacity: 1; }
+
+.impulse-card__insight {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-sm);
+  line-height: 1.5;
+}
+
+.impulse-card__text {
+  font-size: 0.83rem;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-md);
+  line-height: 1.6;
+}
+
+.impulse-card__draft {
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border-light);
+}
+
+.impulse-card__draft-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xs);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.impulse-card__copy-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 2px 10px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all 0.15s;
+}
+
+.impulse-card__copy-btn:hover {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.impulse-card__draft-text {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.55;
+  font-style: italic;
+}
