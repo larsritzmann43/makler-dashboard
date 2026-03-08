@@ -2735,3 +2735,227 @@ body {
   line-height: 1.6;
 }
 
+
+/* ========================================
+   Damage Action Plan Steps
+   ======================================== */
+
+.damage-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-light);
+  background: var(--color-bg-card);
+  margin-bottom: var(--space-xs);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.damage-step--clickable {
+  cursor: pointer;
+}
+
+.damage-step--clickable:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+
+.damage-step--selected {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.damage-step--sent {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.damage-step--blocked {
+  opacity: 0.4;
+  cursor: default;
+  font-style: italic;
+}
+
+.damage-step__indicator {
+  font-size: 1rem;
+  min-width: 1.5rem;
+  text-align: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.damage-step--sent .damage-step__indicator {
+  color: var(--color-primary-dark);
+}
+
+.damage-step__content {
+  flex: 1;
+}
+
+.damage-step__text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.damage-step--sent .damage-step__text {
+  text-decoration: line-through;
+}
+
+.damage-step__recipient {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* ========================================
+   Damage Draft Panel (middle column)
+   ======================================== */
+
+.damage-draft-section {
+  padding: var(--space-md);
+}
+
+.damage-draft {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.damage-draft__header {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.damage-draft__step {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.damage-draft__recipient {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.damage-draft__textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: var(--space-md);
+  border: none;
+  outline: none;
+  resize: vertical;
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  background: var(--color-bg-card);
+}
+
+.damage-draft__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-surface);
+}
+
+/* ========================================
+   Messenger Feed
+   ======================================== */
+
+.message-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-md) var(--space-xl) var(--space-lg);
+}
+
+/* Base message wrapper */
+.msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 78%;
+}
+
+.msg--client { align-self: flex-start; }
+.msg--broker { align-self: flex-end; align-items: flex-end; }
+.msg--system { align-self: center; max-width: 92%; }
+
+/* Sender label */
+.msg__sender {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2px;
+}
+
+/* Avatar row (client only) */
+.msg__avatar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.msg__avatar-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.65rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Bubble */
+.msg__bubble {
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.msg--client .msg__bubble {
+  background: #f1f5f9;
+  border-top-left-radius: 2px;
+  color: var(--color-text-primary);
+}
+
+.msg--broker .msg__bubble {
+  background: rgba(148, 193, 31, 0.13);
+  border-top-right-radius: 2px;
+  color: var(--color-text-primary);
+}
+
+.msg--system .msg__bubble {
+  background: #f3f4f6;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+  padding: 4px 14px;
+  text-align: center;
+}
+
+/* Timestamp */
+.msg__time {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+.msg--broker .msg__time { text-align: right; }

@@ -86,7 +86,7 @@
       <!-- Center: Current Request & Chat -->
       <section class="main-content" id="mainContent">
         <div class="main-content__header">
-          <h2>Chat</h2>
+          <h2>Verlauf</h2>
           <div class="main-content__header-actions">
             <button class="column-icon-btn" title="Einstellungen">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -135,14 +135,8 @@
 
             <div class="request-contracts" id="requestContracts"></div>
 
-            <div class="request-summary">
-              <p id="requestSummary"></p>
-            </div>
-
-            <div class="request-original">
-              <h3>Original-Nachricht</h3>
-              <div class="original-message" id="originalMessage"></div>
-            </div>
+            <!-- Messenger Feed -->
+            <div class="message-feed" id="messageFeed"></div>
 
             <!-- Impulse Section (Wachstumsarchitektur) -->
             <div class="impulse-section" id="impulseSection" style="display: none;">
@@ -154,14 +148,16 @@
               <div id="extractionPanel"></div>
             </div>
 
+            <!-- Damage Draft Section (Schadensmeldung Textentwurf) -->
+            <div class="damage-draft-section" id="damageDraftSection" style="display: none;">
+              <div id="damageDraftPanel"></div>
+            </div>
+
           </div>
         </div>
 
         <!-- Chat pinned at bottom -->
         <div class="chat-interface" id="chatInterface">
-          <div class="chat-messages" id="chatMessages">
-            <!-- Chat messages will appear here -->
-          </div>
           <div class="chat-input-area">
             <textarea id="chatInput" placeholder="Text eingeben..."></textarea>
             <button class="btn btn--primary btn--send" id="sendMessageBtn">
@@ -200,7 +196,7 @@
           </div>
         </div>
 
-        <div class="sidebar__section">
+        <div class="sidebar__section" id="aiResponseSection">
           <div class="ai-response">
             <div class="ai-response__header">
               <h3>

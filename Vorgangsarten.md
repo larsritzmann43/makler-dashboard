@@ -9,13 +9,36 @@
 
 Eingehende Meldung eines Schadensfalls durch den Mandanten (z.B. Autounfall, Hausratschaden, Diebstahl).
 
-| Schritt | Aktion | Detail |
-|---------|--------|--------|
-| 1 | Versicherer informieren | Schadenmeldung per E-Mail an zuständigen Versicherer senden |
-| 2 | Schadenformulare an Kunden senden | Formular-Download-Link oder PDF per Antwort mitschicken |
-| 3 | Schaden dokumentieren lassen | Kunde auffordern, Fotos und Belege zu sichern |
-| 4 | Gutachter beauftragen (falls nötig) | Bei höheren Schäden Gutachtentermin einleiten |
-| 5 | Kunden über Status informieren | Follow-up nach 48h planen |
+### Interaktionsmodell
+
+Schadensmeldungen nutzen ein abweichendes Interaktionsmodell: Statt einer Checkbox-Checkliste gibt es **klickbare Schritt-Karten** in der rechten Spalte. Ein Klick auf einen Schritt lädt einen kontextbezogenen Textentwurf in die mittlere Spalte. Der KI-Antwortbereich (rechte Spalte) wird für Schadensmeldungen ausgeblendet.
+
+### Vorgehensschritte
+
+| Schritt | Aktion | Empfänger | Besonderheit |
+|---------|--------|-----------|--------------|
+| ① | Schadenvorgang an das Backoffice übergeben | Backoffice-Team (intern) | Sperrt Schritte ②③④ nach Absenden |
+| ② | Versicherer informieren | Versicherer | Wird durch ① gesperrt |
+| ③ | Schadenformulare an Mandanten senden | Mandant | Wird durch ① gesperrt |
+| ④ | Schadensersatzbeauftragter beauftragen (Polygon) | Polygon GmbH | Wird durch ① gesperrt |
+| ⑤ | Mandanten über Status informieren | Mandant | Immer verfügbar |
+
+### Status-Logik
+
+- `pending` → normal, klickbar, Nummernindikator ①–⑤
+- `selected` → blauer Rahmen, Textentwurf erscheint in der Mitte
+- `sent` → ausgegraut, Indikator wird zu ✓, Text durchgestrichen
+- `blocked` → ausgegraut, Indikator wird zu 🔒, kursiv, nicht klickbar
+
+**Sonderregel:** Wird Schritt ① (Backoffice-Übergabe) abgeschickt, werden Schritte ②③④ automatisch gesperrt. Schritt ⑤ bleibt stets verfügbar.
+
+### Textentwurf-Panel (mittlere Spalte)
+
+Klick auf einen Schritt öffnet ein Entwurf-Panel mit:
+- Header: Schritt-Nummer + Titel + Empfänger
+- Editierbare Textarea mit dem vorausgefüllten Entwurf (Mandantendaten, Vertragsnummer, Gesellschaft werden automatisch eingesetzt)
+- „Abbrechen" → schließt Panel, Schritt zurück auf `pending`
+- „Absenden →" → Schritt wird `sent`, ggf. Folgeschritte `blocked`, Panel schließt sich
 
 ---
 

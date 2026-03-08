@@ -22,11 +22,32 @@ import {
 // Action plan templates per category
 const actionPlans = {
   damage: [
-    { text: 'Versicherer informieren', detail: 'Schadenmeldung per E-Mail an zuständigen Versicherer senden' },
-    { text: 'Schadenformulare an Kunden senden', detail: 'Formular-Download-Link oder PDF per Antwort mitschicken' },
-    { text: 'Schaden dokumentieren lassen', detail: 'Kunde auffordern, Fotos und Belege zu sichern' },
-    { text: 'Gutachter beauftragen (falls nötig)', detail: 'Bei höheren Schäden Gutachtentermin einleiten' },
-    { text: 'Kunden über Status informieren', detail: 'Follow-up nach 48h planen' }
+    {
+      text: 'Schadenvorgang an das Backoffice übergeben',
+      recipient: 'Backoffice-Team (intern)',
+      blocksOnSend: [1, 2, 3],
+      draft: (request) => `Hallo Team,\n\nhiermit übergebe ich folgenden Schadenvorgang zur weiteren Bearbeitung:\n\nMandant: ${request.sender.name}\nVertrag: ${request.sender.contracts?.[0]?.vertragsnummer ?? '–'}\nGesellschaft: ${request.sender.contracts?.[0]?.gesellschaft ?? '–'}\n\nBitte übernehmt die Kommunikation mit dem Versicherer, die Beauftragung eines Gutachters sowie ggf. die Kontaktaufnahme mit Polygon. Ich halte den Mandanten über den weiteren Status informiert.\n\nDanke!`
+    },
+    {
+      text: 'Versicherer informieren',
+      recipient: 'Versicherer',
+      draft: (request) => `Sehr geehrte Damen und Herren,\n\nim Auftrag unseres Mandanten ${request.sender.name} (Vertrag: ${request.sender.contracts?.[0]?.vertragsnummer ?? '–'}) melden wir hiermit einen Schadenfall.\n\nSchadenhergang:\n${request.summary}\n\nBitte bestätigen Sie den Eingang dieser Meldung und teilen Sie uns den zuständigen Sachbearbeiter mit.\n\nMit freundlichen Grüßen`
+    },
+    {
+      text: 'Schadenformulare an Mandanten senden',
+      recipient: 'Mandant',
+      draft: (request) => `Guten Tag, ${request.sender.name.split(' ').pop()},\n\nfür die weitere Bearbeitung Ihres Schadens benötigen wir noch einige Unterlagen von Ihnen:\n\n• Ausgefülltes Schadenformular (Link folgt)\n• Fotos des Schadens\n• Ggf. Polizeibericht / Gutachten\n\nBitte senden Sie die Unterlagen so bald wie möglich zurück.\n\nBei Fragen stehe ich Ihnen gerne zur Verfügung.`
+    },
+    {
+      text: 'Schadensersatzbeauftragter beauftragen (Polygon)',
+      recipient: 'Polygon GmbH',
+      draft: (request) => `Guten Tag,\n\nwir bitten um die Beauftragung eines Schadensersatzbeauftragten für folgenden Fall:\n\nMandant: ${request.sender.name}\nSchaden: ${request.summary}\nVertragsnummer: ${request.sender.contracts?.[0]?.vertragsnummer ?? '–'}\n\nBitte nehmen Sie baldmöglichst Kontakt mit dem Mandanten auf.\n\nMit freundlichen Grüßen`
+    },
+    {
+      text: 'Mandanten über Status informieren',
+      recipient: 'Mandant',
+      draft: (request) => `Guten Tag, ${request.sender.name.split(' ').pop()},\n\nik wollte Sie kurz über den aktuellen Stand Ihres Schadenfalls informieren:\n\nIhr Schadenfall ist bei uns eingegangen und wird aktuell bearbeitet. Der zuständige Versicherer wurde informiert. Sobald es Neuigkeiten gibt, melde ich mich umgehend bei Ihnen.\n\nBei Fragen stehe ich Ihnen jederzeit zur Verfügung.`
+    }
   ],
   appointment: [
     { text: 'Verfügbare Termine prüfen', detail: 'Kalender auf passende Slots checken' },
@@ -85,7 +106,8 @@ const state = {
   searchQuery: '',
   finanzanalysen: JSON.parse(JSON.stringify(initialFinanzanalysen)),
   extractionStatus: {},   // requestId → 'pending' | 'accepted' | 'rejected' | 'undone'
-  extractionSnapshots: {} // requestId → { applied: [...keys], snapshot: { key: oldValue } }
+  extractionSnapshots: {}, // requestId → { applied: [...keys], snapshot: { key: oldValue } }
+  damageSteps: {}          // requestId → ['pending'|'selected'|'sent'|'blocked', ...]
 };
 
 // DOM Elements
@@ -104,8 +126,7 @@ const elements = {
   requestTime: document.getElementById('requestTime'),
   requestCategory: document.getElementById('requestCategory'),
   requestContracts: document.getElementById('requestContracts'),
-  requestSummary: document.getElementById('requestSummary'),
-  originalMessage: document.getElementById('originalMessage'),
+  messageFeed: document.getElementById('messageFeed'),
   appointmentSuggestion: document.getElementById('appointmentSuggestion'),
   suggestedDate: document.getElementById('suggestedDate'),
   suggestedTime: document.getElementById('suggestedTime'),
@@ -115,7 +136,6 @@ const elements = {
   sendResponseBtn: document.getElementById('sendResponseBtn'),
 
   // Chat elements
-  chatMessages: document.getElementById('chatMessages'),
   chatInput: document.getElementById('chatInput'),
   sendMessageBtn: document.getElementById('sendMessageBtn'),
 
@@ -129,6 +149,11 @@ const elements = {
 
   extractionSection: document.getElementById('extractionSection'),
   extractionPanel: document.getElementById('extractionPanel'),
+
+  damageDraftSection: document.getElementById('damageDraftSection'),
+  damageDraftPanel: document.getElementById('damageDraftPanel'),
+
+  aiResponseSection: document.getElementById('aiResponseSection'),
 
   searchInput: document.getElementById('searchInput')
 };
@@ -290,9 +315,8 @@ async function renderStandardRequestView(request) {
     elements.requestContracts.innerHTML = '';
   }
 
-  // Summary & Original Message
-  elements.requestSummary.textContent = request.summary;
-  elements.originalMessage.textContent = request.originalMessage;
+  // Render messenger feed
+  renderMessageFeed(request);
 
   // Show appointment suggestion for appointment requests
   if (request.category === 'appointment') {
@@ -328,6 +352,18 @@ async function renderStandardRequestView(request) {
 
   // Render extraction panel if document contains extractable data
   renderExtractedDataPanel(request);
+
+  // Damage category: use new step interaction model
+  if (request.category === 'damage') {
+    if (elements.aiResponseSection) elements.aiResponseSection.style.display = 'none';
+    if (elements.damageDraftSection) elements.damageDraftSection.style.display = 'none';
+    renderDamageActionPlan(request);
+    return;
+  }
+
+  // Show AI section for non-damage requests
+  if (elements.aiResponseSection) elements.aiResponseSection.style.display = '';
+  if (elements.damageDraftSection) elements.damageDraftSection.style.display = 'none';
 
   // Render action plan for this category
   renderActionPlan(request.category);
@@ -1230,13 +1266,95 @@ async function sendChatMessage() {
   }, 1000);
 }
 
-// Add a message to the chat
+// Add a message to the chat / feed
 function addChatMessage(text, sender) {
-  const messageDiv = document.createElement('div');
-  messageDiv.className = `chat-message chat-message--${sender}`;
-  messageDiv.textContent = text;
-  elements.chatMessages.appendChild(messageDiv);
-  elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+  const type = sender === 'user' ? 'broker' : 'system';
+  const html = renderMessageBubble(type, text, new Date(), 'Lars Ritzmann');
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const el = tmp.firstElementChild;
+  if (el && elements.messageFeed) {
+    elements.messageFeed.appendChild(el);
+    if (elements.requestDetail) {
+      elements.requestDetail.scrollTop = elements.requestDetail.scrollHeight;
+    }
+  }
+}
+
+// ========================================
+// Messenger Feed
+// ========================================
+
+function renderMessageFeed(request) {
+  if (!elements.messageFeed) return;
+
+  const allMessages = [...(request.history ?? [])];
+
+  // The current client message
+  allMessages.push({
+    type: 'client',
+    text: request.originalMessage,
+    timestamp: request.timestamp,
+    senderName: request.sender.name
+  });
+
+  // Sort by timestamp ascending
+  allMessages.sort((a, b) => a.timestamp - b.timestamp);
+
+  // AI summary as system pill at the end
+  allMessages.push({
+    type: 'system',
+    text: `KI: ${request.summary}`,
+    timestamp: new Date(request.timestamp.getTime() + 60000)
+  });
+
+  elements.messageFeed.innerHTML = allMessages
+    .map(m => renderMessageBubble(m.type, m.text, m.timestamp, m.senderName ?? request.sender.name))
+    .join('');
+
+  // Scroll to show the last message
+  setTimeout(() => {
+    if (elements.requestDetail) {
+      elements.requestDetail.scrollTop = elements.messageFeed.offsetTop + elements.messageFeed.offsetHeight;
+    }
+  }, 50);
+}
+
+function renderMessageBubble(type, text, timestamp, senderName) {
+  const safeText = (text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+  const timeStr = timestamp
+    ? timestamp.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+    : '';
+  const dateStr = timestamp
+    ? timestamp.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
+    : '';
+  const fullTime = timestamp ? `${dateStr} · ${timeStr}` : '';
+
+  if (type === 'system') {
+    return `<div class="msg msg--system"><div class="msg__bubble">${safeText}</div></div>`;
+  }
+
+  if (type === 'client') {
+    const initial = (senderName || '?').charAt(0).toUpperCase();
+    return `<div class="msg msg--client">
+      <div class="msg__avatar">
+        <div class="msg__avatar-circle">${initial}</div>
+        <span class="msg__sender">${senderName || ''}</span>
+      </div>
+      <div class="msg__bubble">${safeText}</div>
+      <div class="msg__time">${fullTime}</div>
+    </div>`;
+  }
+
+  if (type === 'broker') {
+    return `<div class="msg msg--broker">
+      <div class="msg__sender">Sie</div>
+      <div class="msg__bubble">${safeText}</div>
+      <div class="msg__time">${fullTime}</div>
+    </div>`;
+  }
+
+  return '';
 }
 
 // ========================================
@@ -1286,6 +1404,124 @@ function updateActionPlanProgress() {
   const total = elements.actionPlanList.children.length;
   const done = elements.actionPlanList.querySelectorAll('.action-plan__step--done').length;
   elements.actionPlanProgress.textContent = `${done}/${total}`;
+}
+
+// ========================================
+// Damage Action Plan (Schadensmeldung)
+// ========================================
+
+const STEP_NUMBERS = ['①', '②', '③', '④', '⑤'];
+
+function renderDamageActionPlan(request) {
+  const steps = actionPlans.damage;
+
+  // Init state if first time
+  if (!state.damageSteps[request.id]) {
+    state.damageSteps[request.id] = steps.map(() => 'pending');
+  }
+  const stepStatuses = state.damageSteps[request.id];
+
+  elements.actionPlanSection.style.display = '';
+  elements.actionPlanProgress.textContent = '';
+
+  const header = elements.actionPlanSection.querySelector('.action-plan__header h3');
+  header.innerHTML = `<span class="action-plan__icon">📋</span> Vorgehensplan`;
+
+  elements.actionPlanList.innerHTML = steps.map((step, i) => {
+    const status = stepStatuses[i];
+    const isSent = status === 'sent';
+    const isBlocked = status === 'blocked';
+    const isSelected = status === 'selected';
+    const isClickable = !isSent && !isBlocked;
+
+    let indicator;
+    if (isSent) indicator = '✓';
+    else if (isBlocked) indicator = '🔒';
+    else indicator = STEP_NUMBERS[i];
+
+    return `
+      <div class="damage-step damage-step--${status} ${isClickable ? 'damage-step--clickable' : ''}"
+           data-step-index="${i}" ${!isClickable ? 'aria-disabled="true"' : ''}>
+        <div class="damage-step__indicator">${indicator}</div>
+        <div class="damage-step__content">
+          <div class="damage-step__text">${step.text}</div>
+          <div class="damage-step__recipient">An: ${step.recipient}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Wire click handlers
+  elements.actionPlanList.querySelectorAll('.damage-step--clickable').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.stepIndex);
+      // Deselect any previously selected
+      const prev = stepStatuses.indexOf('selected');
+      if (prev !== -1) stepStatuses[prev] = 'pending';
+      stepStatuses[idx] = 'selected';
+      renderDamageActionPlan(request);
+      renderDamageDraft(request, idx);
+    });
+  });
+}
+
+function renderDamageDraft(request, stepIndex) {
+  const step = actionPlans.damage[stepIndex];
+  const draftText = step.draft(request);
+
+  elements.damageDraftSection.style.display = 'block';
+  elements.damageDraftPanel.innerHTML = `
+    <div class="damage-draft">
+      <div class="damage-draft__header">
+        <span class="damage-draft__step">Schritt ${stepIndex + 1} · ${step.text}</span>
+        <span class="damage-draft__recipient">An: ${step.recipient}</span>
+      </div>
+      <textarea class="damage-draft__textarea" id="damageDraftText">${draftText}</textarea>
+      <div class="damage-draft__actions">
+        <button class="btn btn--secondary" id="damageDraftCancelBtn">Abbrechen</button>
+        <button class="btn btn--primary" id="damageDraftSendBtn">
+          Absenden →
+        </button>
+      </div>
+    </div>`;
+
+  document.getElementById('damageDraftCancelBtn').addEventListener('click', () => {
+    const statuses = state.damageSteps[request.id];
+    if (statuses[stepIndex] === 'selected') statuses[stepIndex] = 'pending';
+    elements.damageDraftSection.style.display = 'none';
+    renderDamageActionPlan(request);
+  });
+
+  document.getElementById('damageDraftSendBtn').addEventListener('click', () => {
+    sendDamageStep(request, stepIndex);
+  });
+}
+
+function sendDamageStep(request, stepIndex) {
+  const statuses = state.damageSteps[request.id];
+  statuses[stepIndex] = 'sent';
+
+  const step = actionPlans.damage[stepIndex];
+  if (step.blocksOnSend) {
+    step.blocksOnSend.forEach(i => { statuses[i] = 'blocked'; });
+  }
+
+  elements.damageDraftSection.style.display = 'none';
+  renderDamageActionPlan(request);
+
+  // Append system message to feed
+  const systemText = `${STEP_NUMBERS[stepIndex]} Gesendet: ${step.text} · An: ${step.recipient}`;
+  const html = renderMessageBubble('system', systemText, new Date());
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const el = tmp.firstElementChild;
+  if (el && elements.messageFeed) {
+    elements.messageFeed.appendChild(el);
+    if (elements.requestDetail) {
+      elements.requestDetail.scrollTop = elements.requestDetail.scrollHeight;
+    }
+  }
+
+  showNotification('Nachricht gesendet ✓');
 }
 
 // Mobile navigation

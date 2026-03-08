@@ -99,6 +99,12 @@ export const mockRequests = [
       phone: '+49 171 2345678'
     },
     timestamp: new Date('2026-03-04T08:45:00'),
+    history: [
+      { type: 'system', text: 'Vorgang eröffnet · 03.03.2026', timestamp: new Date('2026-03-03T08:00:00') },
+      { type: 'client', text: 'Guten Tag, ich hatte letzte Woche schon mal wegen eines Steinschlags am Fahrzeug angerufen – Sie haben gesagt, ich soll mich nochmal melden wenn ich die Reparaturkostenschätzung habe. Die liegt jetzt vor: ca. 380 €. Wie soll ich weiter vorgehen?', timestamp: new Date('2026-03-03T09:12:00') },
+      { type: 'broker', text: 'Guten Tag, Herr Schneider! Danke für die Kostenschätzung. Bei 380 € lohnt sich die Meldung bei der Kaskoversicherung je nach Ihrer Selbstbeteiligung – ich prüfe das und melde mich heute Nachmittag. Bitte halten Sie die Schätzung von der Werkstatt bereit.', timestamp: new Date('2026-03-03T14:30:00') },
+      { type: 'system', text: 'Rückruf vereinbart · 03.03.2026, 14:30', timestamp: new Date('2026-03-03T14:31:00') }
+    ],
     preview: 'Dringend - Autounfall auf der A7, brauche sofortige Hilfe',
     originalMessage: `Guten Tag,
 
@@ -126,6 +132,11 @@ Handynummer: 0171-2345678`,
       email: 'weber.familie@gmx.de'
     },
     timestamp: new Date('2026-03-03T16:30:00'),
+    history: [
+      { type: 'system', text: 'Erstkontakt · 15.01.2026', timestamp: new Date('2026-01-15T10:00:00') },
+      { type: 'client', text: 'Guten Tag, wir waren vor ein paar Monaten bei Ihnen zur Beratung. Jetzt haben wir noch eine Folgefrage zur Riester-Rente für unsere ältere Tochter – können wir kurz telefonieren?', timestamp: new Date('2026-01-15T10:05:00') },
+      { type: 'broker', text: 'Sehr geehrte Familie Weber, natürlich gerne! Ich rufe Sie heute Nachmittag gegen 16 Uhr an. Für Kinder unter 25 Jahren gibt es interessante Möglichkeiten – ich bereite schon mal die relevanten Unterlagen vor.', timestamp: new Date('2026-01-15T14:00:00') }
+    ],
     preview: 'Beratungstermin wegen Altersvorsorge für unsere Kinder gewünscht',
     originalMessage: `Lieber Herr Makler,
 
@@ -516,6 +527,13 @@ Sarah & Daniel Koch`,
       ]
     },
     timestamp: new Date('2026-03-07T11:00:00'),
+    history: [
+      { type: 'system', text: 'Schadenvorgang eröffnet · 26.02.2026', timestamp: new Date('2026-02-26T09:00:00') },
+      { type: 'client', text: 'Hallo! Mein Fahrrad wurde heute Nacht aus dem Keller gestohlen – das Schloss wurde aufgebrochen. Canyon Grail, ca. 2.800 €. Polizei habe ich schon informiert, Aktenzeichen: HH-2026-34821. Was soll ich tun?', timestamp: new Date('2026-02-26T09:08:00') },
+      { type: 'broker', text: 'Guten Tag, Herr Bergmann! Tut mir leid das zu hören. Ich habe die Schadensmeldung sofort bei der HDI aufgenommen. Sie benötigen das Aktenzeichen der Polizei (haben Sie bereits) und am besten noch einen Kaufbeleg oder Foto des Fahrrads. Ich melde mich, sobald die Eingangsbestätigung der Versicherung da ist.', timestamp: new Date('2026-02-26T11:30:00') },
+      { type: 'system', text: 'Schadenmeldung eingereicht bei HDI · 26.02.2026, 11:30', timestamp: new Date('2026-02-26T11:31:00') },
+      { type: 'broker', text: 'Kurzes Update: Die HDI hat den Schaden anerkannt. Die Regulierung ist in Bearbeitung, Sie erhalten in den nächsten Tagen die Auszahlung direkt auf Ihr Konto.', timestamp: new Date('2026-03-03T14:05:00') }
+    ],
     preview: 'Herzlichen Dank! Das Geld ist auf meinem Konto eingegangen.',
     originalMessage: `Hallo, ich wollte mich nur kurz melden und herzlich bedanken! Die Versicherung hat meinen Fahrraddiebstahl sehr schnell reguliert – das Geld ist heute Morgen auf meinem Konto eingegangen. Wirklich toll, wie unkompliziert das war. Vielen Dank für Ihre Unterstützung!`,
     summary: 'Mandant bedankt sich für die schnelle Schadensregulierung nach Fahrraddiebstahl. Versicherungsleistung ausgezahlt, Mandant sehr zufrieden.',

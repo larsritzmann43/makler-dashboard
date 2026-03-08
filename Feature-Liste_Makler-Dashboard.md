@@ -150,15 +150,14 @@
 
 ### 7.1 Kategorie-basierte Aktionspläne
 - Wird pro Anfrage-Kategorie automatisch angezeigt
-- Fortschritts-Badge (z.B. „2/5")
-- Jede Kategorie hat eigene Schritte:
+- Jede Kategorie hat eigene Schritte (siehe unten)
 
-**Schadensmeldung (5 Schritte):**
-1. Versicherer informieren
-2. Schadenformulare an Kunden senden
-3. Schaden dokumentieren lassen
-4. Gutachter beauftragen (falls nötig)
-5. Kunden über Status informieren
+**Schadensmeldung (5 Schritte) – abweichendes Interaktionsmodell, siehe 7.3:**
+1. Schadenvorgang an das Backoffice übergeben *(sperrt Schritte 2–4)*
+2. Versicherer informieren
+3. Schadenformulare an Mandanten senden
+4. Schadensersatzbeauftragter beauftragen (Polygon)
+5. Mandanten über Status informieren
 
 **Terminanfrage (4 Schritte):**
 1. Verfügbare Termine prüfen
@@ -190,11 +189,22 @@
 3. Adressdaten aktualisieren (falls nötig)
 4. Dokument an Kunden senden
 
-### 7.2 Interaktive Checkliste
+### 7.2 Interaktive Checkliste (Standard-Modell)
+- Gilt für alle Kategorien außer Schadensmeldung
 - Klick auf einen Schritt markiert ihn als erledigt (Toggle)
 - Erledigte Schritte: Grüner Haken, Durchstreich-Text, reduzierte Opacity
-- Fortschritts-Badge aktualisiert sich automatisch
+- Fortschritts-Badge (z.B. „2/5") aktualisiert sich automatisch
 - Jeder Schritt hat Titel + Detail-Beschreibung
+
+### 7.3 Schadensmeldung – Schritt-Interaktionsmodell
+- Keine Checkboxen – klickbare Schritt-Karten mit Nummernindikator (①–⑤)
+- KI-Antwortbereich (rechte Spalte) wird ausgeblendet
+- Klick auf einen Schritt → Textentwurf erscheint in der **mittleren Spalte** (Entwurf-Panel)
+- Entwurf-Panel: Schritt-Titel, Empfänger, editierbare Textarea, „Abbrechen" / „Absenden →"
+- Absenden → Schritt wird ausgegraut (✓), Panel schließt sich
+- Schritt 1 (Backoffice-Übergabe) → nach Absenden werden Schritte 2–4 gesperrt (🔒)
+- Schritt 5 (Mandant informieren) ist immer verfügbar, unabhängig von Schritt 1
+- Textentwürfe werden mit Mandantendaten befüllt (Name, Vertragsnummer, Gesellschaft, Zusammenfassung)
 
 ---
 
