@@ -569,7 +569,161 @@ Allianz Versicherung AG`,
       }
     }
   }
+  ,
+  {
+    id: 21,
+    channel: 'email',
+    category: 'documents',
+    sender: {
+      name: 'Maria Hoffmann',
+      email: 'maria.hoffmann@web.de',
+      contracts: [
+        { sparte: 'Lebensversicherung', gesellschaft: 'Zurich', vertragsnummer: 'LV-2015-44102' },
+        { sparte: 'Berufsunfähigkeit', gesellschaft: 'HDI', vertragsnummer: 'BU-2017-88201' }
+      ]
+    },
+    timestamp: new Date('2026-03-07T09:30:00'),
+    preview: 'Rentenbescheid – bitte in meine Unterlagen aufnehmen',
+    originalMessage: `Guten Tag,
+
+ich habe heute meinen aktuellen Rentenbescheid von der Deutschen Rentenversicherung erhalten und sende Ihnen diesen zur Aufnahme in meine Unterlagen.
+
+Laut Bescheid vom 15.02.2026 habe ich Anspruch auf eine monatliche Altersrente von 1.247 € ab dem 01.04.2031.
+
+Bitte aktualisieren Sie meine Finanzanalyse entsprechend.
+
+Mit freundlichen Grüßen
+Maria Hoffmann`,
+    summary: 'Mandantin übermittelt Rentenbescheid. Monatliche Altersrente: 1.247 € ab 01.04.2031. Bittet um Aktualisierung der Finanzanalyse.',
+    answered: false,
+    extractedData: {
+      documentType: 'Rentenbescheid',
+      fields: [
+        { key: 'rentenerwartung', label: 'Rentenerwartung (gesetzlich)', newValue: '1.247 €/Monat', confidence: 'hoch' },
+        { key: 'renteneintrittsDatum', label: 'Renteneintrittsdatum', newValue: '01.04.2031', confidence: 'hoch' },
+        { key: 'rentenbescheidDatum', label: 'Bescheiddatum', newValue: '15.02.2026', confidence: 'hoch' }
+      ]
+    }
+  },
+  {
+    id: 22,
+    channel: 'whatsapp',
+    category: 'documents',
+    sender: {
+      name: 'Klaus Weber',
+      phone: '+49 160 9934821',
+      contracts: [
+        { sparte: 'KFZ', gesellschaft: 'ADAC', vertragsnummer: 'KFZ-2020-33981' },
+        { sparte: 'Haftpflicht', gesellschaft: 'Allianz', vertragsnummer: 'PHV-2018-77412' }
+      ]
+    },
+    timestamp: new Date('2026-03-06T14:20:00'),
+    preview: 'Hier mein neuer Personalausweis wie besprochen',
+    originalMessage: `Hallo, hier wie besprochen ein Foto meines neuen Personalausweises.
+
+Ausweisnummer: T220K3281
+Ausgestellt am: 03.03.2026
+Gültig bis: 02.03.2036
+Ausstellende Behörde: Landeshauptstadt München
+
+Reicht das so oder brauchen Sie noch etwas?`,
+    summary: 'Mandant sendet Foto des neuen Personalausweises. Ausweisnummer T220K3281, ausgestellt 03.03.2026, gültig bis 02.03.2036, München.',
+    answered: false,
+    extractedData: {
+      documentType: 'Personalausweis',
+      fields: [
+        { key: 'ausweisnummer', label: 'Ausweisnummer', newValue: 'T220K3281', confidence: 'hoch' },
+        { key: 'ausweisAusstelldatum', label: 'Ausstelldatum', newValue: '03.03.2026', confidence: 'hoch' },
+        { key: 'ausweisAblaufdatum', label: 'Gültig bis', newValue: '02.03.2036', confidence: 'hoch' },
+        { key: 'ausweisBehoerde', label: 'Ausstellende Behörde', newValue: 'LH München', confidence: 'mittel' }
+      ]
+    }
+  },
+  {
+    id: 23,
+    channel: 'whatsapp',
+    category: 'contractChange',
+    sender: {
+      name: 'Sandra Maier',
+      phone: '+49 176 5512340',
+      contracts: [
+        { sparte: 'Berufsunfähigkeit', gesellschaft: 'Nürnberger', vertragsnummer: 'BU-2019-12344' },
+        { sparte: 'Altersvorsorge', gesellschaft: 'Zurich', vertragsnummer: 'AV-2021-55890' }
+      ]
+    },
+    timestamp: new Date('2026-03-07T08:45:00'),
+    preview: 'Gehaltserhöhung! Muss ich jetzt etwas bei meiner BU anpassen?',
+    originalMessage: `Hallo! Gute Neuigkeiten – ich habe ab nächstem Monat eine deutliche Gehaltserhöhung bekommen. Mein neues Nettoeinkommen beträgt 3.800 € im Monat (vorher 3.200 €).
+
+Ich wollte kurz nachfragen: Sollte ich meine Berufsunfähigkeitsversicherung deswegen anpassen? Und gibt es steuerliche Aspekte, die ich beachten muss?
+
+Viele Grüße
+Sandra`,
+    summary: 'Mandantin meldet Gehaltserhöhung: Nettoeinkommen steigt von 3.200 € auf 3.800 €/Monat. Fragt nach Anpassungsbedarf bei BU und steuerlichen Aspekten.',
+    answered: false,
+    extractedData: {
+      documentType: 'Einkommensänderung',
+      fields: [
+        { key: 'nettoEinkommen', label: 'Nettoeinkommen', newValue: '3.800 €/Monat', confidence: 'hoch' }
+      ]
+    }
+  }
 ];
+
+// Initial Finanzanalyse profiles (keyed by sender name)
+export const initialFinanzanalysen = {
+  'Maria Hoffmann': {
+    familienstand: 'verheiratet',
+    ausweisnummer: null,
+    ausweisAusstelldatum: null,
+    ausweisAblaufdatum: null,
+    ausweisBehoerde: null,
+    nettoEinkommen: '2.860 €/Monat',
+    bruttoEinkommen: null,
+    arbeitgeber: null,
+    rentenerwartung: null,
+    renteneintrittsDatum: null,
+    rentenbescheidDatum: null,
+    steuerklasse: '3',
+    zuVersteuerndesEinkommen: null,
+    kfzKennzeichen: null,
+    kfzFahrzeug: null
+  },
+  'Klaus Weber': {
+    familienstand: 'verheiratet',
+    ausweisnummer: 'L52P30K53',
+    ausweisAusstelldatum: '15.03.2016',
+    ausweisAblaufdatum: '14.03.2026',
+    ausweisBehoerde: 'LH München',
+    nettoEinkommen: '4.200 €/Monat',
+    bruttoEinkommen: null,
+    arbeitgeber: 'BMW AG',
+    rentenerwartung: null,
+    renteneintrittsDatum: null,
+    rentenbescheidDatum: null,
+    steuerklasse: '3',
+    zuVersteuerndesEinkommen: null,
+    kfzKennzeichen: 'M-KW 1142',
+    kfzFahrzeug: null
+  },
+  'Sandra Maier': {
+    familienstand: 'ledig',
+    ausweisnummer: null,
+    ausweisAusstelldatum: null,
+    ausweisAblaufdatum: null,
+    ausweisBehoerde: null,
+    nettoEinkommen: '3.200 €/Monat',
+    bruttoEinkommen: '4.850 €/Monat',
+    arbeitgeber: 'TechGmbH München',
+    rentenerwartung: null,
+    renteneintrittsDatum: null,
+    rentenbescheidDatum: null,
+    steuerklasse: '1',
+    zuVersteuerndesEinkommen: null,
+    kfzKennzeichen: null,
+    kfzFahrzeug: null
+  }
+};
 
 // Function to get requests sorted by date (newest first)
 export function getSortedRequests(requests = mockRequests) {

@@ -8,7 +8,8 @@ import {
   priorities,
   getSortedRequests,
   formatTimeAgo,
-  formatDateTime
+  formatDateTime,
+  initialFinanzanalysen
 } from './mockData.js';
 import { templates } from './templates.js';
 import {
@@ -81,7 +82,10 @@ const state = {
   clientProgress: {}, // tracks action plan progress per client
   currentFilter: 'all',
   currentView: 'requests', // for mobile
-  searchQuery: ''
+  searchQuery: '',
+  finanzanalysen: JSON.parse(JSON.stringify(initialFinanzanalysen)),
+  extractionStatus: {},   // requestId → 'pending' | 'accepted' | 'rejected' | 'undone'
+  extractionSnapshots: {} // requestId → { applied: [...keys], snapshot: { key: oldValue } }
 };
 
 // DOM Elements
@@ -122,6 +126,9 @@ const elements = {
 
   impulseSection: document.getElementById('impulseSection'),
   impulseCard: document.getElementById('impulseCard'),
+
+  extractionSection: document.getElementById('extractionSection'),
+  extractionPanel: document.getElementById('extractionPanel'),
 
   searchInput: document.getElementById('searchInput')
 };
@@ -229,8 +236,9 @@ async function selectRequest(requestId) {
   state.selectedClient = null;
   renderRequestList(); // Update active state
 
-  // Hide impulse section by default; shown only for requests that have one
+  // Hide contextual panels by default; shown only when relevant
   elements.impulseSection.style.display = 'none';
+  elements.extractionSection.style.display = 'none';
 
   // Handle special request types
   if (request.type === 'yearEnd') {
@@ -317,6 +325,9 @@ async function renderStandardRequestView(request) {
       elements.impulseSection.style.display = 'none';
     });
   }
+
+  // Render extraction panel if document contains extractable data
+  renderExtractedDataPanel(request);
 
   // Render action plan for this category
   renderActionPlan(request.category);
@@ -750,6 +761,127 @@ function renderReworkActions(doc) {
   const lastName = doc.clientName.split(' ').pop();
   elements.aiResponseText.value = `Sehr geehrte/r Herr/Frau ${lastName},\n\nim Rahmen Ihres Versicherungsantrags bei der ${doc.company} (Vertragsnr.: ${doc.contractNumber}) benötigen wir noch Ihre Unterschrift auf folgendem Dokument:\n\n📄 ${doc.documentType}\n\n${doc.description}\n\n⏳ Bitte senden Sie das unterschriebene Dokument bis zum ${doc.deadline} an uns zurück.\n\nSie haben folgende Möglichkeiten:\n• Digitale Unterschrift per E-Mail\n• Persönliche Übergabe im Büro\n• Per Post an unsere Adresse\n\nBei Fragen stehe ich Ihnen gerne zur Verfügung.\n\nMit freundlichen Grüßen\nIhr TELIS-Berater\n\nKontakt: ${doc.clientPhone} | ${doc.clientEmail}`;
   elements.aiStatus.textContent = 'Vorlage';
+}
+
+// ========================================
+// Intelligente Datenextraktion
+// ========================================
+
+function renderExtractedDataPanel(request) {
+  if (!request.extractedData) {
+    elements.extractionSection.style.display = 'none';
+    return;
+  }
+
+  const status = state.extractionStatus[request.id] || 'pending';
+  if (status === 'rejected' || status === 'undone') {
+    elements.extractionSection.style.display = 'none';
+    return;
+  }
+
+  elements.extractionSection.style.display = 'block';
+  const data = request.extractedData;
+  const clientProfile = state.finanzanalysen[request.sender.name] || {};
+
+  if (status === 'pending') {
+    elements.extractionPanel.innerHTML = `
+      <div class="extraction-card">
+        <div class="extraction-card__header">
+          <span class="extraction-card__icon">🔍</span>
+          <span class="extraction-card__title">Erkannte Daten · ${data.documentType}</span>
+        </div>
+        <div class="extraction-card__fields">
+          ${data.fields.map(f => {
+            const oldVal = clientProfile[f.key];
+            const oldDisplay = oldVal ? `<span class="extraction-field__old">${oldVal}</span>` : `<span class="extraction-field__old extraction-field__old--empty">nicht erfasst</span>`;
+            return `
+              <label class="extraction-field">
+                <input type="checkbox" class="extraction-field__checkbox" data-key="${f.key}" checked>
+                <div class="extraction-field__content">
+                  <span class="extraction-field__label">${f.label}</span>
+                  <div class="extraction-field__values">
+                    ${oldDisplay}
+                    <span class="extraction-field__arrow">→</span>
+                    <span class="extraction-field__new">${f.newValue}</span>
+                  </div>
+                </div>
+              </label>`;
+          }).join('')}
+        </div>
+        <div class="extraction-card__footer">
+          <span class="extraction-card__confidence">KI-Konfidenz: ${data.fields[0]?.confidence || 'hoch'}</span>
+          <div class="extraction-card__actions">
+            <button class="extraction-btn extraction-btn--ghost" id="extractionRejectBtn">Ablehnen</button>
+            <button class="extraction-btn extraction-btn--primary" id="extractionAcceptBtn">Übernehmen →</button>
+          </div>
+        </div>
+      </div>`;
+
+    document.getElementById('extractionRejectBtn').addEventListener('click', () => {
+      state.extractionStatus[request.id] = 'rejected';
+      elements.extractionSection.style.display = 'none';
+    });
+
+    document.getElementById('extractionAcceptBtn').addEventListener('click', () => {
+      const checkboxes = elements.extractionPanel.querySelectorAll('.extraction-field__checkbox');
+      const selectedKeys = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.dataset.key);
+      if (selectedKeys.length > 0) applyExtraction(request, selectedKeys);
+    });
+
+  } else if (status === 'accepted') {
+    const snap = state.extractionSnapshots[request.id];
+    const appliedFields = data.fields.filter(f => snap?.applied?.includes(f.key));
+
+    elements.extractionPanel.innerHTML = `
+      <div class="extraction-card extraction-card--accepted">
+        <div class="extraction-card__header">
+          <span class="extraction-card__icon">✅</span>
+          <span class="extraction-card__title">Finanzanalyse aktualisiert · ${data.documentType}</span>
+        </div>
+        <div class="extraction-card__applied">
+          ${appliedFields.map(f => `
+            <div class="extraction-applied-row">
+              <span class="extraction-applied-row__label">${f.label}</span>
+              <span class="extraction-applied-row__arrow">→</span>
+              <span class="extraction-applied-row__value">${f.newValue}</span>
+            </div>`).join('')}
+        </div>
+        <div class="extraction-card__undo-row">
+          <button class="extraction-btn extraction-btn--ghost" id="extractionUndoBtn">Rückgängig machen</button>
+        </div>
+      </div>`;
+
+    const undoBtn = document.getElementById('extractionUndoBtn');
+    undoBtn.addEventListener('click', () => undoExtraction(request));
+    setTimeout(() => { if (document.getElementById('extractionUndoBtn')) undoBtn.style.opacity = '0'; }, 28000);
+    setTimeout(() => { if (document.getElementById('extractionUndoBtn')) undoBtn.style.display = 'none'; }, 30000);
+  }
+}
+
+function applyExtraction(request, selectedKeys) {
+  const clientProfile = state.finanzanalysen[request.sender.name] || {};
+  const snapshot = {};
+  selectedKeys.forEach(key => { snapshot[key] = clientProfile[key] ?? null; });
+
+  state.extractionSnapshots[request.id] = { applied: selectedKeys, snapshot };
+
+  if (!state.finanzanalysen[request.sender.name]) state.finanzanalysen[request.sender.name] = {};
+  request.extractedData.fields.forEach(f => {
+    if (selectedKeys.includes(f.key)) state.finanzanalysen[request.sender.name][f.key] = f.newValue;
+  });
+
+  state.extractionStatus[request.id] = 'accepted';
+  renderExtractedDataPanel(request);
+}
+
+function undoExtraction(request) {
+  const snap = state.extractionSnapshots[request.id];
+  if (!snap) return;
+  Object.entries(snap.snapshot).forEach(([key, val]) => {
+    state.finanzanalysen[request.sender.name][key] = val;
+  });
+  state.extractionStatus[request.id] = 'undone';
+  elements.extractionSection.style.display = 'none';
 }
 
 // Generate AI response for the selected request

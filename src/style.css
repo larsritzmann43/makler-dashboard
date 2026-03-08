@@ -2467,6 +2467,195 @@ body {
   margin-top: var(--space-lg);
 }
 
+/* ========================================
+   Extraction Panel (Intelligente Datenextraktion)
+   ======================================== */
+
+.extraction-section {
+  margin-top: var(--space-lg);
+}
+
+.extraction-card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  border-left: 4px solid #3b82f6;
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.extraction-card--accepted {
+  border-left-color: #22c55e;
+  background: rgba(34, 197, 94, 0.04);
+}
+
+.extraction-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--space-md);
+}
+
+.extraction-card__icon {
+  font-size: 1rem;
+}
+
+.extraction-card__title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.extraction-card__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.extraction-field {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-xs) 0;
+  cursor: pointer;
+}
+
+.extraction-field__checkbox {
+  margin-top: 3px;
+  flex-shrink: 0;
+  accent-color: #3b82f6;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.extraction-field__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.extraction-field__label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2px;
+}
+
+.extraction-field__values {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+
+.extraction-field__old {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.extraction-field__old--empty {
+  text-decoration: none;
+  font-style: italic;
+}
+
+.extraction-field__arrow {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.extraction-field__new {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.extraction-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.extraction-card__confidence {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.extraction-card__actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.extraction-btn {
+  border-radius: var(--radius-full);
+  padding: 4px 14px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+
+.extraction-btn--ghost {
+  background: none;
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.extraction-btn--ghost:hover {
+  border-color: var(--color-text-muted);
+  color: var(--color-text-primary);
+}
+
+.extraction-btn--primary {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+
+.extraction-btn--primary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.extraction-card__applied {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--space-md);
+}
+
+.extraction-applied-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.extraction-applied-row__label {
+  color: var(--color-text-muted);
+  min-width: 160px;
+}
+
+.extraction-applied-row__arrow {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.extraction-applied-row__value {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.extraction-card__undo-row {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border-light);
+  transition: opacity 2s ease;
+}
+
 .impulse-card {
   background: var(--color-bg-card);
   border-radius: var(--radius-md);
