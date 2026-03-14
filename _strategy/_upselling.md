@@ -1,4 +1,4 @@
-# Wachstumsarchitektur – Strategischer Gedanke zum Makler-Dashboard
+# Wachstumsarchitektur – Strategischer Gedanke zu Projekt IQ
 
 ## Ausgangsfrage (Lars Ritzmann)
 

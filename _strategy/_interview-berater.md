@@ -1,5 +1,5 @@
 # Gesprächsleitfaden – Berater / Außendienst
-**Projekt:** TELIS FINANZ Connect | **Gesprächsdauer:** ca. 35 Minuten
+**Projekt:** Projekt IQ | **Gesprächsdauer:** ca. 35 Minuten
 **Ziel:** Operative Pain-Points, Kanalgewohnheiten, Tagesablauf, Akzeptanz-Signale verstehen
 
 ---

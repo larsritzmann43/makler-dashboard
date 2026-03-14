@@ -1,4 +1,4 @@
-# TELIS FINANZ Connect – Entwickler-Dokumentation
+# Projekt IQ – Entwickler-Dokumentation
 
 **Stand:** März 2026 | **Prototyp, kein Produktionscode**
 

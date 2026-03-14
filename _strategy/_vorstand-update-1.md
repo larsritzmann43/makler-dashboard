@@ -1,4 +1,4 @@
-# Vorstandsupdate 1 – TELIS FINANZ Connect
+# Vorstandsupdate 1 – Projekt IQ
 **Datum:** [KW 3–4, April 2026]
 **Präsentiert von:** Lars Ritzmann
 **Turnus:** Bi-Weekly Update (1 von geplant 6 in Phase 1)

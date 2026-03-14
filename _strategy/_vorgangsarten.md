@@ -1,4 +1,4 @@
-# Vorgangsarten & Vorgehenspläne – Makler-Dashboard
+# Vorgangsarten & Vorgehenspläne – Projekt IQ
 
 Übersicht aller implementierten Eingangstypen mit ihren Vorgehensplänen (Stand: März 2026).
 

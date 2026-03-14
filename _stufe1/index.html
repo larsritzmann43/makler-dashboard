@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IQ Inbox · Ausbaustufe 1</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="brand-iq">IQ</span>
+        <span class="brand-name">Inbox</span>
+        <span class="brand-stage">Ausbaustufe 1</span>
+      </div>
+      <div class="header-meta">TELIS FINANZ AG · Makler-Kommunikationsplattform</div>
+      <div class="header-user">
+        <div class="user-avatar">MM</div>
+        Max Mustermann
+      </div>
+    </header>
+
+    <main class="columns">
+
+      <!-- SPALTE 1: Unified Inbox -->
+      <div class="col col-1">
+        <div class="col-header">
+          <h2>Eingang <span id="inbox-count" class="badge">3</span></h2>
+          <button class="btn-sm btn-outline" id="btn-new">+ Vorgang</button>
+        </div>
+        <div class="search-wrap">
+          <input type="text" class="search-input" id="search-input" placeholder="Suchen…">
+        </div>
+        <div class="inbox-list" id="inbox-list"></div>
+      </div>
+
+      <!-- SPALTE 2: Context Layer -->
+      <div class="col col-2" id="col-2">
+        <div class="empty-state">
+          <div class="empty-icon">📬</div>
+          <div class="empty-title">Vorgang auswählen</div>
+          <div class="empty-sub">Klicke links auf einen Eingang, um ihn zu bearbeiten.</div>
+        </div>
+      </div>
+
+      <!-- SPALTE 3: Intelligence Layer -->
+      <div class="col col-3" id="col-3">
+        <div class="empty-state">
+          <div class="empty-icon">🧠</div>
+          <div class="empty-title">IQ Analyse</div>
+          <div class="empty-sub">Wähle einen Vorgang aus.</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- DOS Modal Overlay -->
+  <div class="modal-overlay" id="dos-modal">
+    <div class="dos-window" id="dos-window"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

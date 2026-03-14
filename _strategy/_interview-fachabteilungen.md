@@ -1,5 +1,5 @@
 # Gesprächsleitfaden – Fachabteilungen / Innendienst
-**Projekt:** TELIS FINANZ Connect | **Gesprächsdauer:** ca. 30 Minuten
+**Projekt:** Projekt IQ | **Gesprächsdauer:** ca. 30 Minuten
 **Ziel:** Vorgangs-Volumen, häufigste Fehlerquellen, Rückfrage-Hotspots – Priorisierungssignal für Vorgangsarten
 
 ---

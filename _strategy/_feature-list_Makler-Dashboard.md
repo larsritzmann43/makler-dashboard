@@ -1,4 +1,4 @@
-# Feature-Liste: TELIS FINANZ AG – Kommunikations-Dashboard
+# Feature-Liste: TELIS FINANZ AG – Projekt IQ
 
 > **Zweck:** Vollständige Auflistung aller Funktionalitäten des bestehenden Prototyps als Grundlage für die Neuentwicklung.
 > **Stand:** 14. Februar 2026

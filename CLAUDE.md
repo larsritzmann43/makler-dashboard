@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Makler-Dashboard: A communication dashboard prototype for German insurance brokers (TELIS FINANZ AG). Brokers manage incoming client requests from multiple channels (email, phone, WhatsApp, Instagram), generate AI-assisted reply drafts, and archive completed interactions. All UI text is in German (de-DE locale).
+Projekt IQ: A communication dashboard prototype for German insurance brokers (TELIS FINANZ AG). Brokers manage incoming client requests from multiple channels (email, phone, WhatsApp, Instagram), generate AI-assisted reply drafts, and archive completed interactions. All UI text is in German (de-DE locale).
 
 ## Commands
 

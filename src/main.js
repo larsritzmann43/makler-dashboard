@@ -1691,3 +1691,36 @@ if (document.readyState !== 'loading' && !initialized) {
   initialized = true;
   init();
 }
+
+// ========================================
+// Feedback Button
+// ========================================
+(function () {
+  const btn = document.getElementById('feedbackBtn');
+  const panel = document.getElementById('feedbackPanel');
+  const close = document.getElementById('feedbackClose');
+  const input = document.getElementById('feedbackInput');
+  const send = document.getElementById('feedbackSend');
+  const confirm = document.getElementById('feedbackConfirm');
+
+  btn.addEventListener('click', () => panel.classList.toggle('is-open'));
+  close.addEventListener('click', () => panel.classList.remove('is-open'));
+
+  send.addEventListener('click', () => {
+    const text = input.value.trim();
+    if (!text) return;
+
+    const feedbacks = JSON.parse(localStorage.getItem('iq_feedback') || '[]');
+    feedbacks.push({ text, ts: new Date().toISOString() });
+    localStorage.setItem('iq_feedback', JSON.stringify(feedbacks));
+
+    input.value = '';
+    send.style.display = 'none';
+    confirm.style.display = 'block';
+    setTimeout(() => {
+      confirm.style.display = 'none';
+      send.style.display = '';
+      panel.classList.remove('is-open');
+    }, 2000);
+  });
+})();

@@ -1,10 +1,10 @@
-# TELIS FINANZ Connect – Produktdokumentation
+# Projekt IQ – Produktdokumentation
 
 **Stand:** März 2026 | **Autor:** Lars Ritzmann
 
 ---
 
-## Was ist TELIS FINANZ Connect?
+## Was ist Projekt IQ?
 
 Ein digitales Kommunikations-Dashboard für Finanzberater und Makler. Es bündelt alle eingehenden Mandanten-Anfragen aus verschiedenen Kanälen an einem Ort, unterstützt die Bearbeitung mit KI und leitet den Berater aktiv zu wertschöpfenden Folgeaktivitäten an.
 

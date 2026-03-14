@@ -317,6 +317,31 @@
     </div>
   </div>
 
+  <!-- Feedback Button -->
+  <button class="feedback-btn" id="feedbackBtn" title="Verbesserungsvorschlag senden">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+  </button>
+
+  <!-- Feedback Panel -->
+  <div class="feedback-panel" id="feedbackPanel">
+    <div class="feedback-panel__header">
+      <span>Verbesserungsvorschlag</span>
+      <button class="feedback-panel__close" id="feedbackClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <textarea class="feedback-panel__input" id="feedbackInput" placeholder="Was könnte besser sein?"></textarea>
+    <button class="feedback-panel__send" id="feedbackSend">Senden</button>
+    <p class="feedback-panel__confirm" id="feedbackConfirm">Danke für dein Feedback!</p>
+  </div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 

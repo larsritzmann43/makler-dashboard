@@ -1,5 +1,5 @@
 # Auswertungs-Template – Discovery-Phase
-**Projekt:** TELIS FINANZ Connect
+**Projekt:** Projekt IQ
 **Ausfüllen nach Abschluss aller Interviews einer Gruppe**
 
 ---

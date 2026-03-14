@@ -1,5 +1,5 @@
 # Gesprächsleitfaden – Führungskräfte
-**Projekt:** TELIS FINANZ Connect | **Gesprächsdauer:** ca. 45 Minuten
+**Projekt:** Projekt IQ | **Gesprächsdauer:** ca. 45 Minuten
 **Ziel:** Strategische Prioritäten, organisatorische Schmerzpunkte, Akzeptanz-Rahmenbedingungen verstehen
 
 ---
